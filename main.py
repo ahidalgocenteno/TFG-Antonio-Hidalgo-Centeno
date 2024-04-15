@@ -6,18 +6,23 @@ import json
 import torch
 from torchvision import datasets, transforms, make_grid
 
-from utils.nn_helper_utils import imshow
+from utils.helper_utils import imshow
+from utils.helper_utils import set_device
+
 from utils.data_utils import load_datos_parciales
 from utils.data_utils import SiameseNetworkDatasetRatiod
-from utils.nn_helper_utils import set_device
-from utils.nn_helper_utils import train
-from utils.nn_helper_utils import train_siamese_network
+
+from utils.train import train
+from utils.train import train_siamese_network
+
 from networks.models import convolutional_net
 from networks.models import recurrent_convolutional_net
 from networks.models import siamese_recurrent_net
 
-# Create folder with training, testing and validation data.
-random.seed(123)
+from utils.seed import seed_everything
+
+# Seed
+seed_everything(42, benchmark=False)
 
 spectrograms_dir = "Data/images_original/"
 folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
@@ -124,40 +129,3 @@ concatenated = torch.cat((example_batch[0], example_batch[1]),0)
 # Muestra el batch
 imshow(make_grid(concatenated))
 print(example_batch[2].numpy().reshape(-1))
-
-
-results = {'CNN':{},'CRNN':{},'Siamesa Convolucional':{},'Siamesa Recurrente':{}}
-# TRAINING CNN
-device = set_device()
-for n_class,parcial_loader in loaders_parciales.items():
-  print(f'Training for {n_class} data per class.')
-  net = convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CNN'][n_class] = validation_acc[-1]
-
-out_file = open("cnn_parcial_results.json", "w")
-json.dump(results['CNN'], out_file, indent = 1)
-
-
-# TRAINING CRNN 
-for n_class,parcial_loader in loaders_parciales.items():
-  print(f'Training for {n_class} data per class.')
-  net = recurrent_convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CRNN'][n_class] = validation_acc[-1]
-
-# TRAINING SIAMESE CONVOLUTIONAL
-# siamese evaluation
-for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
-  print(f'Training for {n_class} data per class.')
-  net = siamese_recurrent_net().to(device)
-  train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
-  results['CRNN'][n_class] = validation_acc[-1]
-
-# Print table header
-print(f"{'Network':<10}{'1':<10}{'5':<10}{'10':<10}{'50':<10}{'89':<10}")
-
-# Iterate through the outer dictionary
-for network, result in results.items():
-    # Print key and corresponding subkey values
-    print(f"{network:<10}{result[1]:<10}{result[5]:<10}{result[10]:<10}{result[50]:<10}{result[89]:<10}")
