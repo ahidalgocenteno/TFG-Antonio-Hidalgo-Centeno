@@ -2,9 +2,8 @@ import os
 import shutil
 import random
 import glob
-import json
 import torch
-from torchvision import datasets, transforms, make_grid
+from torchvision import datasets, transforms, utils
 
 from utils.helper_utils import imshow
 from utils.helper_utils import set_device
@@ -30,43 +29,6 @@ train_dir = folder_names[0]
 test_dir = folder_names[1]
 val_dir = folder_names[2]
 
-
-# Para cada directorio
-for f in folder_names:
-  # Si existe el directorio, eliminalo
-  if os.path.exists(f):
-    shutil.rmtree(f)
-    os.mkdir(f)
-  # Si no existe, crea el nuevo directorio
-  else:
-    os.mkdir(f)
-
-# Recorre cada genero
-genres = list(os.listdir(spectrograms_dir))
-for g in genres:
-  # find all images & split in train, test, and validation
-  src_file_paths= []
-  for im in glob.glob(os.path.join(spectrograms_dir, f'{g}',"*.png"), recursive=True):
-    src_file_paths.append(im)
-  random.shuffle(src_file_paths)
-  test_files = src_file_paths[0:10]
-  val_files = src_file_paths[10:20]
-  train_files = src_file_paths[20:]
-
-
-  #  make destination folders for train and test images
-  for f in folder_names:
-    if not os.path.exists(os.path.join(f + f"{g}")):
-      os.mkdir(os.path.join(f + f"{g}"))
-
-  # copy training and testing images over
-  for f in train_files:
-    shutil.copy(f, os.path.join(os.path.join(train_dir + f"{g}") + '/',os.path.split(f)[1]))
-  for f in test_files:
-    shutil.copy(f, os.path.join(os.path.join(test_dir + f"{g}") + '/',os.path.split(f)[1]))
-  for f in val_files:
-    shutil.copy(f, os.path.join(os.path.join(val_dir + f"{g}") + '/',os.path.split(f)[1]))
-
 train_dataset = datasets.ImageFolder(train_dir,transforms.Compose([transforms.ToTensor(),]))
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=25, shuffle=True, num_workers=0)
 
@@ -75,7 +37,6 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=Tru
 
 
 # datos parciales
-
 data_per_class = [50, 10, 5, 1]
 
 datasets_parciales = {}
@@ -127,5 +88,5 @@ example_batch = next(iter(vis_dataloader))
 # Si la etiqueta = 1, los géneros son diferentes (máxima distancia) Caso contrario etiqueta = 0 (minima distancia)
 concatenated = torch.cat((example_batch[0], example_batch[1]),0)
 # Muestra el batch
-imshow(make_grid(concatenated))
+imshow(utils.make_grid(concatenated))
 print(example_batch[2].numpy().reshape(-1))
