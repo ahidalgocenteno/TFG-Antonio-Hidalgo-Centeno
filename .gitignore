@@ -162,3 +162,5 @@ cython_debug/
 # custom
 /env
 /pyvenv.cfg
+/Data*
+music.zip 
