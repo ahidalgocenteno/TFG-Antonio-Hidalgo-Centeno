@@ -4,6 +4,12 @@ from tqdm import tqdm
 import torch.nn as nn
 import torch.nn.functional as F
 
+def set_device():
+  device = "cuda" if torch.cuda.is_available() else "cpu"
+  if device != "cuda":
+      print("WARNING : La GPU no está activa en este cuaderno.")
+  return device
+
 def train(model, device, train_loader, validation_loader, epochs):
   criterion =  nn.CrossEntropyLoss()
   optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) #Nadam, lr= .001
@@ -139,3 +145,6 @@ def train_siamese_network(model, device, train_loader,val_loader, epochs):
 
   return train_loss, validation_loss
 
+if __name__=='__main__':
+  device = set_device()
+  print(device)
