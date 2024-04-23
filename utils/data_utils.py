@@ -9,7 +9,6 @@ import numpy as np
 from PIL import Image
 
 def load_datos_parciales(n_por_clase, path):
-    random.seed(123)
     train_folder_name = ['Data/datos_parciales_', str(n_por_clase), '/train/']
     train_parcial_dir = ''.join(train_folder_name)
 
@@ -22,6 +21,7 @@ def load_datos_parciales(n_por_clase, path):
     genres = os.listdir(path)
     for genre in genres:
         src_file_paths = glob.glob(os.path.join(path, genre, "*.png"))
+        src_file_paths.sort() 
         n_files = len(src_file_paths)
 
         if n_files < n_por_clase:
@@ -103,8 +103,6 @@ class SiameseNetworkDatasetRatiod(torch.utils.data.Dataset):
         self.pairs = self.generate_pairs()
 
     def generate_pairs(self):
-        random.seed(123)
-
         pairs = []
         same_genre_pairs = []
         diff_genre_pairs = []
