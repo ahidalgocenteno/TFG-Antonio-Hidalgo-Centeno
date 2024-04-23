@@ -24,6 +24,10 @@ if __name__ == '__main__':
   val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
   val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
+  # save val_loader in picklefile
+  with open('Data/loaders_datasets/val_loader.p', 'wb') as f:
+    pickle.dump(val_loader, f)
+
   # datos parciales
   data_per_class = [50, 10, 5, 1]
 
@@ -55,9 +59,9 @@ if __name__ == '__main__':
       print('Partial data for', n_por_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
   # guarda datasets y loaders parciales en picklefile
-  with open('Data/datasets_parciales.p', 'wb') as f:
+  with open('Data/loaders_datasets/datasets_parciales.p', 'wb') as f:
       pickle.dump(datasets_parciales, f)
-  with open('Data/loaders_parciales.p', 'wb') as f:
+  with open('Data/loaders_datasets/loaders_parciales.p', 'wb') as f:
       pickle.dump(loaders_parciales, f)
 
   # datos siamesa
@@ -85,7 +89,7 @@ if __name__ == '__main__':
   print(example_batch[2].numpy().reshape(-1))
 
   # guarda datasets y loaders parciales de siamesa en picklefile
-  with open('Data/siamese_datasets_parciales.p', 'wb') as f:
+  with open('Data/loaders_datasets/siamese_datasets_parciales.p', 'wb') as f:
       pickle.dump(siamese_parcial_datasets, f)
-  with open('Data/siamese_loaders_parciales.p', 'wb') as f:
+  with open('Data/loaders_datasets/siamese_loaders_parciales.p', 'wb') as f:
       pickle.dump(siamese_parcial_loaders, f)
