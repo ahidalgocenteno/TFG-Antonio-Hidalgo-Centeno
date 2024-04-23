@@ -4,12 +4,6 @@ import matplotlib.pyplot as plt
 import librosa
 import librosa.display
 
-def set_device():
-  device = "cuda" if torch.cuda.is_available() else "cpu"
-  if device != "cuda":
-      print("WARNING : La GPU no está activa en este cuaderno.")
-  return device
-
 def plot_audio_wave(y,sample_rate,title):
   print(f'y shape: {np.shape(y)} \n')
   print(f'Frecuencia de muestreo (KHz):{sample_rate} muestras/s \n')
