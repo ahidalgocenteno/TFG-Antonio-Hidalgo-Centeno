@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 
 def load_datos_parciales(n_por_clase, path):
-    train_folder_name = ['Data/datos_parciales_', str(n_por_clase), '/train/']
+    train_folder_name = ['Data/datos_parciales_', str(n_por_clase)]
     train_parcial_dir = ''.join(train_folder_name)
 
     # If directories exist, remove and create new ones

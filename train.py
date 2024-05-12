@@ -1,8 +1,11 @@
+import pickle
 import json
 import torch
 from tqdm import tqdm
 import torch.nn as nn
 import torch.nn.functional as F
+
+from networks.models import convolutional_net, recurrent_convolutional_net, siamese_recurrent_net
 
 def set_device():
   device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -148,3 +151,37 @@ def train_siamese_network(model, device, train_loader,val_loader, epochs):
 if __name__=='__main__':
   device = set_device()
   print(device)
+
+  # load datasets
+  with open('Data/loaders_datasets/loaders_parciales.p', 'rb') as f:
+      loaders_parciales = pickle.load(f)
+  with open('Data/loaders_datasets/val_loader.p', 'rb') as f:
+      val_loader = pickle.load(f)
+  with open('Data/loaders_datasets/siamese_loaders_parciales.p', 'rb') as f:
+      siamese_parcial_loaders = pickle.load(f)
+
+  results = {'CNN':{},'CRNN':{},'Siamesa Convolucional':{},'Siamesa Recurrente':{}}
+
+  # CNN evaluation
+  for n_class,parcial_loader in loaders_parciales.items():
+    print(f'Training for {n_class} data per class.')
+    net = convolutional_net().to(device)
+    train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+    results['CNN'][n_class] = validation_acc[-1]
+
+  out_file = open("cnn_parcial_results.json", "w")
+  json.dump(results['CNN'], out_file, indent = 1)
+
+  # CRNN evaluation
+  for n_class,parcial_loader in loaders_parciales.items():
+    print(f'Training for {n_class} data per class.')
+    net = recurrent_convolutional_net().to(device)
+    train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+    results['CRNN'][n_class] = validation_acc[-1]
+
+  # Siamesa Convolucional evaluation
+  for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
+    print(f'Training for {n_class} data per class.')
+    net = siamese_recurrent_net().to(device)
+    train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
+    results['CRNN'][n_class] = validation_acc[-1]
