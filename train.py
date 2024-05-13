@@ -1,187 +1,113 @@
-import pickle
-import json
 import torch
-from tqdm import tqdm
-import torch.nn as nn
-import torch.nn.functional as F
+from torchvision import datasets, transforms, utils
 
-from networks.models import convolutional_net, recurrent_convolutional_net, siamese_recurrent_net
+import json
 
-def set_device():
-  device = "cuda" if torch.cuda.is_available() else "cpu"
-  if device != "cuda":
-      print("WARNING : La GPU no está activa en este cuaderno.")
-  return device
+from utils.helper_utils import imshow
+from utils.data_utils import load_datos_parciales
+from utils.data_utils import SiameseNetworkDatasetRatiod
+from utils.train_utils import train, train_siamese_network, set_device
 
-def train(model, device, train_loader, validation_loader, epochs):
-  criterion =  nn.CrossEntropyLoss()
-  optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) #Nadam, lr= .001
-  train_loss, validation_loss = [], []
-  train_acc, validation_acc = [], []
-  with tqdm(range(epochs), unit='epoch') as tepochs:
-    tepochs.set_description('Training')
-    for epoch in tepochs:
-      model.train()
-      # keep track of the running loss
-      running_loss = 0.
-      correct, total = 0, 0
+from networks.convolutional_net import convolutional_net
+from networks.recurrent_convolutional_net import recurrent_convolutional_net
+from networks.siamese_net import siamese_recurrent_net
 
-      for data, target in train_loader:
-        # getting the training set
-        data, target = data.to(device), target.to(device)
-        # Get the model output (call the model with the data from this batch)
-        output = model(data)
-        # Zero the gradients out)
-        optimizer.zero_grad()
-        # Get the Loss
-        loss  = criterion(output, target)
-        # Calculate the gradients
-        loss.backward()
-        # Update the weights (using the training step of the optimizer)
-        optimizer.step()
+from utils.seed import seed_everything
 
-        tepochs.set_postfix(loss=loss.item())
-        running_loss += loss  # add the loss for this batch
+if __name__ == '__main__':
+  # Seed
+  seed_everything(42, benchmark=False)
 
-        # get accuracy
-        _, predicted = torch.max(output, 1)
-        total += target.size(0)
-        correct += (predicted == target).sum().item()
+  spectrograms_dir = "Data/images_original/"
+  folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
+  train_dir = folder_names[0]
+  test_dir = folder_names[1]
+  val_dir = folder_names[2]
 
-      # append the loss for this epoch
-      train_loss.append(running_loss.detach().cpu().item()/len(train_loader))
-      train_acc.append(correct/total)
+  train_dataset = datasets.ImageFolder(train_dir,transforms.Compose([transforms.ToTensor(),]))
+  train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=25, shuffle=True, num_workers=0)
 
-      # evaluate on validation data
-      model.eval()
-      running_loss = 0.
-      correct, total = 0, 0
+  val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
+  val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
-      for data, target in validation_loader:
-        # getting the validation set
-        data, target = data.to(device), target.to(device)
-        optimizer.zero_grad()
-        output = model(data)
-        loss = criterion(output, target)
-        tepochs.set_postfix(loss=loss.item())
-        running_loss += loss.item()
-        # get accuracy
-        _, predicted = torch.max(output, 1)
-        total += target.size(0)
-        correct += (predicted == target).sum().item()
+  # datos parciales
+  data_per_class = [50, 10, 5, 1]
+  datasets_parciales = {}
+  loaders_parciales = {}
+  datasets_parciales[80] = train_dataset
+  loaders_parciales[80] = train_loader
 
-      validation_loss.append(running_loss/len(validation_loader))
-      validation_acc.append(correct/total)
+  print('Complete data:', len(train_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
-  return train_loss, train_acc, validation_loss, validation_acc
+  # Loop through different cases of data per class
+  for n_por_class in data_per_class:
+      # call loader for n per class
+      train_parcial_dir = load_datos_parciales(n_por_class, train_dir)
+      # Get datasets from directories with ImageFolder
+      train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
+      # Save dataset in dict
+      datasets_parciales[n_por_class] = train_parcial_dataset
+      # Get loaders and store them in the dictionary
+      train_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+      # Save loader in dict
+      loaders_parciales[n_por_class] = train_loader
 
-# Función de pérdida Siamesa
-class ContrastiveLoss(nn.Module):
-    def __init__(self, margin=2.0):
-        super(ContrastiveLoss, self).__init__()
-        self.margin = margin
+      print('Partial data for', n_por_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
-    def forward(self, salida_1, salida_2, target):
+# parciales en siamesa
+siamese_parcial_datasets = {}
+siamese_parcial_loaders = {}
+ratio = 0.5
+data_per_class = [80, 50, 10, 5, 1]
 
-      # Calcula la distancia euclideana entre las dos salidas
-      distancia_euclideana = F.pairwise_distance(salida_1, salida_2, keepdim = True)
+# val siamese dataset
+print('Siamese Validation Data:')
+siamese_val_dataset = SiameseNetworkDatasetRatiod(val_dataset,transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+siamese_val_loader = torch.utils.data.DataLoader(siamese_val_dataset, batch_size=25, shuffle=True, num_workers=0)
+print('\n')
 
-      # Perdida
-      loss_contrastive = torch.mean((1-target) * torch.pow(distancia_euclideana, 2) +
-                                    (target) * torch.pow(torch.clamp(self.margin - distancia_euclideana, min=0.0), 2))
+# recorre los diferentes casos de data por clase
+for n_per_class in data_per_class:
+  print(f'Data for {n_per_class} images per class:')
+  siamese_parcial_datasets[n_per_class] = SiameseNetworkDatasetRatiod(datasets_parciales[n_per_class],transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+  siamese_parcial_loaders[n_per_class] = torch.utils.data.DataLoader(siamese_parcial_datasets[n_per_class], batch_size=25, shuffle=True, num_workers=0)
+  print('\n')
 
-      return loss_contrastive
-# Entrenamiento Siamesa
-def train_siamese_network(model, device, train_loader,val_loader, epochs):
-  criterion =  ContrastiveLoss()
-  optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) #Nadam, lr= .001
-
-  train_loss, validation_loss = [], []
-
-  with tqdm(range(epochs), unit='epoch') as tepochs:
-    tepochs.set_description('Training')
-    for epoch in tepochs:
-      model.train()
-      # keep track of the running loss
-      running_loss = 0.
-      correct, total = 0, 0
-
-      for i, (data_1, data_2, target) in enumerate(train_loader, 0):
-
-        # getting the training set
-        data_1, data_2, target = data_1.to(device), data_2.to(device), target.to(device)
-
-        # Get the model output (call the model with the data from this batch)
-        salida_1, salida_2 = model(data_1, data_2)
+# Muestra un batch de ejemplo
+vis_dataloader = torch.utils.data.DataLoader(siamese_parcial_datasets[5],shuffle=True,num_workers=0,batch_size=8)
+example_batch = next(iter(vis_dataloader))
+# Si la etiqueta = 1, los géneros son diferentes (máxima distancia) Caso contrario etiqueta = 0 (minima distancia)
+concatenated = torch.cat((example_batch[0], example_batch[1]),0)
+# Muestra el batch
+imshow(utils.make_grid(concatenated))
+print(example_batch[2].numpy().reshape(-1))
 
 
-        # Zero the gradients out)
-        optimizer.zero_grad()
-        # Get the Loss
-        loss  = criterion(salida_1, salida_2, target)
-        # Calculate the gradients
-        loss.backward()
-        # Update the weights (using the training step of the optimizer)
-        optimizer.step()
+device = set_device()
+print(device)
 
-        tepochs.set_postfix(loss=loss.item())
-        running_loss += loss  # add the loss for this batch
+results = {'CNN':{},'CRNN':{},'Siamesa Convolucional':{},'Siamesa Recurrente':{}}
 
-      # append the loss for this epoch
-      train_loss.append(running_loss.detach().cpu().item()/len(train_loader))
+# CNN evaluation
+for n_class,parcial_loader in loaders_parciales.items():
+  print(f'Training for {n_class} data per class.')
+  net = convolutional_net().to(device)
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  results['CNN'][n_class] = validation_acc[-1]
 
-      # evaluate on validation data
-      model.eval()
-      running_loss = 0.
-      correct, total = 0, 0
+out_file = open("cnn_parcial_results.json", "w")
+json.dump(results['CNN'], out_file, indent = 1)
 
-      for i, (data_1, data_2, target) in enumerate(val_loader, 0):
-        # getting the validation set
-        data_1,data_2, target = data_1.to(device),data_2.to(device), target.to(device)
-        optimizer.zero_grad()
-        output_1,output_2 = model(data_1, data_2)
-        loss = criterion(output_1, output_2, target)
-        tepochs.set_postfix(loss=loss.item())
-        running_loss += loss.item()
+# CRNN evaluation
+for n_class,parcial_loader in loaders_parciales.items():
+  print(f'Training for {n_class} data per class.')
+  net = recurrent_convolutional_net().to(device)
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  results['CRNN'][n_class] = validation_acc[-1]
 
-      validation_loss.append(running_loss/len(val_loader))
-
-  return train_loss, validation_loss
-
-if __name__=='__main__':
-  device = set_device()
-  print(device)
-
-  # load datasets
-  with open('Data/loaders_datasets/loaders_parciales.p', 'rb') as f:
-      loaders_parciales = pickle.load(f)
-  with open('Data/loaders_datasets/val_loader.p', 'rb') as f:
-      val_loader = pickle.load(f)
-  with open('Data/loaders_datasets/siamese_loaders_parciales.p', 'rb') as f:
-      siamese_parcial_loaders = pickle.load(f)
-
-  results = {'CNN':{},'CRNN':{},'Siamesa Convolucional':{},'Siamesa Recurrente':{}}
-
-  # CNN evaluation
-  for n_class,parcial_loader in loaders_parciales.items():
-    print(f'Training for {n_class} data per class.')
-    net = convolutional_net().to(device)
-    train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-    results['CNN'][n_class] = validation_acc[-1]
-
-  out_file = open("cnn_parcial_results.json", "w")
-  json.dump(results['CNN'], out_file, indent = 1)
-
-  # CRNN evaluation
-  for n_class,parcial_loader in loaders_parciales.items():
-    print(f'Training for {n_class} data per class.')
-    net = recurrent_convolutional_net().to(device)
-    train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-    results['CRNN'][n_class] = validation_acc[-1]
-
-  # Siamesa Convolucional evaluation
-  for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
-    print(f'Training for {n_class} data per class.')
-    net = siamese_recurrent_net().to(device)
-    train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
-    results['CRNN'][n_class] = validation_acc[-1]
+# Siamesa Convolucional evaluation
+for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
+  print(f'Training for {n_class} data per class.')
+  net = siamese_recurrent_net().to(device)
+  train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
+  results['CRNN'][n_class] = validation_acc[-1]
