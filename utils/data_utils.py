@@ -53,10 +53,10 @@ class SiameseNetworkDataset(torch.utils.data.Dataset):
     pairs = []
     # obtiene todas las imagenes y su etiqueta (img[1]) de cada genero en el folder dataset
     # convierte a set para que todos los elementos sean unicos, y obtiene una lista
-    genres_labels = list(set(img[1] for img in self.imageFolderDataset.imgs))
+    genres_labels = sorted(list(set(img[1] for img in self.imageFolderDataset.imgs)))
 
     # todas las imágenes de cada género
-    genre_images_dict = {genre_label: [img for img in self.imageFolderDataset.imgs if img[1] == genre_label] for genre_label in genres_labels}
+    genre_images_dict = {genre_label: sorted([img for img in self.imageFolderDataset.imgs if img[1] == genre_label]) for genre_label in genres_labels}
 
     # Generate pairs across all possible combinations of images from different genres
     for genre_pair in combinations(genres_labels, 2):
@@ -68,6 +68,9 @@ class SiameseNetworkDataset(torch.utils.data.Dataset):
 
         same_genre_pairs = list(combinations(genre1_images,2))
         pairs.extend(same_genre_pairs)
+
+    # Sort the pairs after they are generated
+    pairs = sorted(pairs)
     return pairs
 
   def __getitem__(self,index):
@@ -106,15 +109,14 @@ class SiameseNetworkDatasetRatiod(torch.utils.data.Dataset):
         pairs = []
         same_genre_pairs = []
         diff_genre_pairs = []
-        genres_labels = list(set(img[1] for img in self.imageFolderDataset.imgs))
-        genre_images_dict = {genre_label: [img for img in self.imageFolderDataset.imgs if img[1] == genre_label] for genre_label in genres_labels}
+        genres_labels = sorted(list(set(img[1] for img in self.imageFolderDataset.imgs)))
+        genre_images_dict = {genre_label: sorted([img for img in self.imageFolderDataset.imgs if img[1] == genre_label]) for genre_label in genres_labels}
 
         # Calculate the number of samples for each class based on the ratio
         num_samples_per_class = min(len(images) for images in genre_images_dict.values())
 
         if self.ratio == 1 and num_samples_per_class == 1:
           raise ValueError("Error: Not possible to perform combinations of same class pairs with only one sample per classs.")
-          return None
 
         # Generate pairs
         for genre_pair in product(genres_labels,repeat=2):
