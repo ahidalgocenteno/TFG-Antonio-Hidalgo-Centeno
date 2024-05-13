@@ -1,8 +1,8 @@
-import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import librosa
 import librosa.display
+
 
 def plot_audio_wave(y,sample_rate,title):
   print(f'y shape: {np.shape(y)} \n')
@@ -43,7 +43,6 @@ def plot_acc(train_acc,fname = 'acc.png'):
   plt.show()
 
 
-
 def imshow(img, text=None):
     npimg = img.numpy()
     plt.axis("off")
@@ -53,6 +52,7 @@ def imshow(img, text=None):
 
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
+
 
 def plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc):
   epochs = len(train_loss)

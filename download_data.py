@@ -26,17 +26,15 @@ if not os.path.isfile(fname):
       with open(fname, "wb") as fid:
         fid.write(r.content)
 
-
 with ZipFile(fname, 'r') as zipObj:
   # Extract all the contents of zip file in different directory
   zipObj.extractall()
 
-  spectrograms_dir = "Data/images_original/"
+spectrograms_dir = "Data/images_original/"
 folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
 train_dir = folder_names[0]
 test_dir = folder_names[1]
 val_dir = folder_names[2]
-
 
 # Para cada directorio
 for f in folder_names:
@@ -59,7 +57,6 @@ for g in genres:
   test_files = src_file_paths[0:10]
   val_files = src_file_paths[10:20]
   train_files = src_file_paths[20:]
-
 
   #  make destination folders for train and test images
   for f in folder_names:
