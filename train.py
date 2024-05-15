@@ -2,6 +2,7 @@ import torch
 from torchvision import datasets, transforms, utils
 
 import json
+import collections
 
 from utils.helper_utils import imshow
 from utils.data_utils import load_datos_parciales
@@ -83,10 +84,9 @@ imshow(utils.make_grid(concatenated))
 print(example_batch[2].numpy().reshape(-1))
 
 
+# device
 device = set_device()
-print(device)
-
-results = {'CNN':{},'CRNN':{},'Siamesa Convolucional':{},'Siamesa Recurrente':{}}
+results = collections.defaultdict(dict)
 
 # CNN evaluation
 for n_class,parcial_loader in loaders_parciales.items():
