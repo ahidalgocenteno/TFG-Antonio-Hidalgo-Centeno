@@ -11,7 +11,7 @@ from utils.train_utils import train, train_siamese_network, set_device
 
 from networks.convolutional_net import convolutional_net
 from networks.recurrent_convolutional_net import recurrent_convolutional_net
-from networks.siamese_net import siamese_recurrent_net
+from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 
 from utils.seed import seed_everything
 
@@ -105,9 +105,20 @@ for n_class,parcial_loader in loaders_parciales.items():
   train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
   results['CRNN'][n_class] = validation_acc[-1]
 
-# Siamesa Convolucional evaluation
+# Siamesa Convolutional evaluation
+for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
+  print(f'Training for {n_class} data per class.')
+  net = siamese_convolutional_net().to(device)
+  train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
+  results['SCNN'][n_class] = validation_acc[-1]
+
+
+# Siamesa Convolucional Recurrente evaluation
 for n_class,siamese_parcial_loaders in siamese_parcial_loaders.items():
   print(f'Training for {n_class} data per class.')
   net = siamese_recurrent_net().to(device)
   train_loss, validation_loss = train_siamese_network(net, device, loaders_parciales[n_class]['train'],loaders_parciales[n_class]['val'], 100)
-  results['CRNN'][n_class] = validation_acc[-1]
+  results['SCRNN'][n_class] = validation_acc[-1]
+
+out_file = open("scrnn_parcial_results.json", "w")
+json.dump(results['SCRNN'], out_file, indent = 1)
