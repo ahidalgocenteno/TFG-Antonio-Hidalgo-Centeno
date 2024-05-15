@@ -51,9 +51,6 @@ if __name__ == '__main__':
         # Save loader in dict
         loaders_parciales[n_por_class] = train_loader
 
-        print('Partial data for', n_por_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
-
-
 
     # parciales en siamesa
     siamese_parcial_datasets = {}
