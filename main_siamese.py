@@ -91,6 +91,10 @@ if __name__ == '__main__':
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader,siamese_val_loader, 100)
         results['SCNN'][n_class] = get_accuracy_siamese(net, siamese_val_loader, siamese_parcial_loaders[1])
+    
+    # save results
+    with open('scnn_parcial_results.json', 'w') as f:
+        json.dump(results, f)
 
     # SCRNN
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
@@ -98,3 +102,7 @@ if __name__ == '__main__':
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader,siamese_val_loader, 100)
         results['SCRNN'][n_class] = get_accuracy_siamese(net, siamese_val_loader, siamese_parcial_loaders[1])
+    
+    # save results
+    with open('scrnn_parcial_results.json', 'w') as f:
+        json.dump(results, f)
