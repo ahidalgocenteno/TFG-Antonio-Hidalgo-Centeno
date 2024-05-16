@@ -68,10 +68,10 @@ for n_class,parcial_loader in loaders_parciales.items():
 out_file = open("cnn_parcial_results.json", "w")
 json.dump(results['CNN'], out_file, indent = 1)
 
-# # CRNN
-# for n_class,parcial_loader in loaders_parciales.items():
-#   print(f'Training for {n_class} data per class.')
-#   net = recurrent_convolutional_net().to(device)
-#   train_loss, train_acc, validation_loss, validation_acc, acc_total = train(net, device, loaders_parciales[n_class],val_loader, 100)
-#   results['CRNN'][n_class] = acc_total
+# CRNN
+for n_class,parcial_loader in loaders_parciales.items():
+  print(f'Training for {n_class} data per class.')
+  net = recurrent_convolutional_net().to(device)
+  train_loss, train_acc, validation_loss, validation_acc, acc_total = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  results['CRNN'][n_class] = acc_total
 
