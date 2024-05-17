@@ -4,10 +4,8 @@ from torchvision import datasets, transforms, utils
 import json
 import collections
 
-from utils.helper_utils import imshow
 from utils.data_utils import load_datos_parciales
-from utils.data_utils import SiameseNetworkDatasetRatiod
-from utils.train_utils import train, train_siamese_network, set_device
+from utils.train_utils import train, set_device
 
 from networks.convolutional_net import convolutional_net
 from networks.recurrent_convolutional_net import recurrent_convolutional_net
