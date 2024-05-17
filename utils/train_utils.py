@@ -165,7 +165,7 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
     class_samples_labels = []
     for data, target in class_samples_loader:
       data, target = data.to(device), target.to(device)
-      output = model.get_embedding(data)
+      output = model.foward_once(data)
       class_samples_embeddings.append(output)
       class_samples_labels.append(target)
     class_samples_embeddings = torch.cat(class_samples_embeddings)
