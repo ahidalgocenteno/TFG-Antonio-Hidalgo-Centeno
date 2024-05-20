@@ -231,7 +231,10 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
     correct = 0
     total = 0
     for i in range(len(val_embeddings)):
-      distances = torch.norm(val_embeddings[i] - class_samples_embeddings, dim=1)
+      # Repeat val_embeddings[i] to match the shape of class_samples_embeddings
+      val_embedding_repeated = val_embeddings[i].repeat(class_samples_embeddings.shape[0], 1)
+      # Compute the distances using pairwise_distance
+      distances = F.pairwise_distance(val_embedding_repeated, class_samples_embeddings)
       _, predicted = torch.min(distances, 0)
       if class_samples_labels[predicted] == val_labels[i]:
         correct += 1
