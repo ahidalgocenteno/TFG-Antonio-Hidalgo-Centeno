@@ -3,7 +3,8 @@
 </h1>
 
 <p align='center'>
-    <img src='https://web.ua.es/comun2/plantilla21/imagenes/logo-ua.jpg' alt='ua-logo' width='300'>
+    ![UA (color)](https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/3bbb3c66-2ad4-436b-aef6-9ba56d9ef738)
+
 </p>
 
 <p align='center'>
