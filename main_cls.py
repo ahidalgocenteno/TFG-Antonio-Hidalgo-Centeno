@@ -1,5 +1,5 @@
 import torch
-from torchvision import datasets, transforms, utils
+from torchvision import datasets, transforms
 
 import json
 import collections
