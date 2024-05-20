@@ -3,7 +3,8 @@
 </h1>
 
 <p align='center'>
-    <img src='' alt='ua-logo' width='100'>
+    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/3bbb3c66-2ad4-436b-aef6-9ba56d9ef738' alt='ua-logo' height='70'>
+    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/b517512c-1421-4730-ab96-0733ac9f5e81' alt='ua-logo' height='70'>
 </p>
 
 <p align='center'>
@@ -13,7 +14,7 @@
 
 <h2>Modo de Uso</h2>
 
-<p>Para su correcto funcionamiento, este código requiere de ciertas dependencias, en el archivo requirements .txt se pueden encontrar las librerias necesarias para su ejecucción. Es recomndado utilizar un entorno virtual para su ejeccución. Para ello, puedes ejecutar el siguiente comando:</p> 
+<p>Para su correcto funcionamiento, este código requiere de ciertas dependencias, en el archivo requirements.txt se pueden encontrar las librerias necesarias para su ejecucción. Es recomendado utilizar un entorno virtual para su ejeccución. Para ello, puedes ejecutar el siguiente comando (python debe estar instalado):</p> 
 
 <pre>python -m venv &lt;enviroment-name&gt;</pre>
 
@@ -29,7 +30,7 @@ Con lo anterior realizado, puedes comenzar a ejecutar los diferentes módulos de
 
 <h3>Descargar Datos</h3>
 
-Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo los descriptores de audio.
+Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo los descriptores de audio, y realiza el split train, test, val. 
 
 <pre> python download_data.py</pre>
 
