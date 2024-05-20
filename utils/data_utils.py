@@ -7,6 +7,7 @@ from itertools import combinations, product
 import torch
 import numpy as np
 from PIL import Image
+import csv
 
 def load_datos_parciales(n_por_clase, path):
     train_folder_name = ['Data/datos_parciales_', str(n_por_clase)]
@@ -166,6 +167,96 @@ class SiameseNetworkDatasetRatiod(torch.utils.data.Dataset):
             img1 = self.transform(img1)
 
         return img0, img1, torch.from_numpy(np.array([int(img1_tuple[1] != img0_tuple[1])], dtype=np.float32))
+
+    def __len__(self):
+        return len(self.pairs)
+    
+class SiameseNetworkDatasetRatiodWithFeatures(torch.utils.data.Dataset):
+    def __init__(self, imageFolderDataset, transform=None, ratio=0.5, maximize_ratio = False, features_filename = "Data/features_30_sec.csv"):
+        self.imageFolderDataset = imageFolderDataset
+        self.transform = transform
+        self.ratio = ratio
+        self.maximize_ratio = maximize_ratio
+        self.pairs = self.generate_pairs()
+        self.features_filename = features_filename
+        with open(self.features_filename, mode='r') as f:
+          reader = csv.reader(f)
+          self.features = {rows[0]:rows[1:] for rows in reader}
+  
+    def generate_pairs(self):
+        pairs = []
+        same_genre_pairs = []
+        diff_genre_pairs = []
+        genres_labels = sorted(list(set(img[1] for img in self.imageFolderDataset.imgs)))
+        genre_images_dict = {genre_label: sorted([img for img in self.imageFolderDataset.imgs if img[1] == genre_label]) for genre_label in genres_labels}
+
+        # Calculate the number of samples for each class based on the ratio
+        num_samples_per_class = min(len(images) for images in genre_images_dict.values())
+
+        if self.ratio == 1 and num_samples_per_class == 1:
+          raise ValueError("Error: Not possible to perform combinations of same class pairs with only one sample per classs.")
+
+        # Generate pairs
+        for genre_pair in product(genres_labels,repeat=2):
+            genre1_images = genre_images_dict[genre_pair[0]]
+            genre2_images = genre_images_dict[genre_pair[1]]
+            # separate diff genre and same genre combinations
+            if genre_pair[0] == genre_pair[1]:
+              same_genre_pairs.extend(list(product(genre1_images, genre2_images)))
+            else:
+               diff_genre_pairs.extend(list(product(genre1_images, genre2_images)))
+
+        # max ratio to calculate proportion
+        max_ratio =  len(same_genre_pairs) / (len(same_genre_pairs) + len(diff_genre_pairs))
+
+        if self.maximize_ratio:
+          print('Maximizing numbers of pair in Dataset.')
+          self.ratio = max_ratio
+
+        # Calculate the number of pairs to include based on the ratio
+        if self.ratio >= max_ratio:
+          # the maximum number of pairs is limited by the same genre pairs
+          num_same_pairs = len(same_genre_pairs)
+          num_different_pairs = int((num_same_pairs - (self.ratio*num_same_pairs))/self.ratio)
+        else:
+          # the maximum number of pairs is limited by the different genre pairs
+          num_different_pairs = len(diff_genre_pairs)
+          num_same_pairs = int((num_different_pairs*self.ratio)/(1 - self.ratio))
+
+        print(f"Samples: {num_same_pairs} same pairs, {num_different_pairs} different.")
+
+        pairs.extend(random.sample(same_genre_pairs,num_same_pairs))
+        pairs.extend(random.sample(diff_genre_pairs,num_different_pairs))
+
+        return pairs
+
+    def __getitem__(self, index):
+        img0_tuple, img1_tuple = self.pairs[index]
+
+        img0_dir = img0_tuple[0]
+        img1_dir = img1_tuple[0]
+
+        # get the key in the csv for the file, .wav file
+        img0_key = ''.join(os.path.basename(img0_dir).split('.')[0]) + '.wav'
+        img1_key = ''.join(os.path.basename(img1_dir).split('.')[0]) + '.wav'
+        # convert type metal00099.wav to metal.00099.wav
+        img0_key = '.'.join(img0_key.split(img0_key[-9:])) + img0_key[-9:]
+        img1_key = '.'.join(img1_key.split(img1_key[-9:])) + img1_key[-9:]
+        # get the features for the file to tensor (last element is label, not needed)
+        img0_features = torch.from_numpy(np.array(self.features[img0_key][:-1], dtype=np.float32))
+        img1_features = torch.from_numpy(np.array(self.features[img1_key][:-1], dtype=np.float32))
+
+        img0 = Image.open(img0_dir)
+        img1 = Image.open(img1_dir)
+
+        img0 = img0.convert("RGB")
+        img1 = img1.convert("RGB")
+
+        if self.transform is not None:
+            img0 = self.transform(img0)
+            img1 = self.transform(img1)
+
+        return img0, img1, torch.from_numpy(np.array([int(img1_tuple[1] != img0_tuple[1])], dtype=np.float32)), img0_features, img1_features
 
     def __len__(self):
         return len(self.pairs)
