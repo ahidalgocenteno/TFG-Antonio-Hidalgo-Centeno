@@ -7,7 +7,7 @@ class siamese_convolutional_with_features_net(nn.Module):
     super(siamese_convolutional_with_features_net, self).__init__()
     self.siamese_conv = siamese_convolutional_net()
     self.fc = nn.Sequential(
-        nn.Linear(59, 128),
+        nn.Linear(58, 128),
         nn.ReLU(),
         nn.Linear(128, 64),
         nn.ReLU(),
@@ -33,7 +33,7 @@ class siamese_recurrent_with_features_net(nn.Module):
     super(siamese_recurrent_with_features_net, self).__init__()
     self.siamese_rnn = siamese_recurrent_net()
     self.fc = nn.Sequential(
-        nn.Linear(59, 128),
+        nn.Linear(58, 128),
         nn.ReLU(),
         nn.Linear(128, 64),
         nn.ReLU(),
