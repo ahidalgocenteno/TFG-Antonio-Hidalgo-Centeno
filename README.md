@@ -13,7 +13,7 @@
 
 <h2>Modo de Uso</h2>
 
-<p>Para su correcto funcionamiento, este código requiere de ciertas dependencias, en el archivo requirements .txt se pueden encontrar las librerias necesarias para su ejecucción. Es recomndado utilizar un entorno virtual para su ejeccución. Para ello, puedes ejecutar el siguiente comando:</p> 
+<p>Para su correcto funcionamiento, este código requiere de ciertas dependencias, en el archivo requirements.txt se pueden encontrar las librerias necesarias para su ejecucción. Es recomendado utilizar un entorno virtual para su ejeccución. Para ello, puedes ejecutar el siguiente comando (python debe estar instalado):</p> 
 
 <pre>python -m venv &lt;enviroment-name&gt;</pre>
 
@@ -29,7 +29,7 @@ Con lo anterior realizado, puedes comenzar a ejecutar los diferentes módulos de
 
 <h3>Descargar Datos</h3>
 
-Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo los descriptores de audio.
+Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo los descriptores de audio, y realiza el split train, test, val. 
 
 <pre> python download_data.py</pre>
 
