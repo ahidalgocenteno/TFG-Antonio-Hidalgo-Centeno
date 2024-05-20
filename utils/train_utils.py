@@ -145,7 +145,63 @@ def train_siamese_network(model, device, train_loader,val_loader, epochs):
 
   return train_loss, validation_loss
 
-# get the accuracy of the siamese with kNN classifier
+def train_siamese_with_features(model, device, train_loader, val_loader, epochs):
+  criterion =  ContrastiveLoss()
+  optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) #Nadam, lr= .001
+
+  train_loss, validation_loss = [], []
+
+  with tqdm(range(epochs), unit='epoch') as tepochs:
+    tepochs.set_description('Training')
+    for epoch in tepochs:
+      model.train()
+      # keep track of the running loss
+      running_loss = 0.
+
+      for i, (data_1, data_2, target, features_1, features_2) in enumerate(train_loader, 0):
+
+        # getting the training set
+        data_1, data_2, target = data_1.to(device), data_2.to(device), target.to(device)
+        features_1, features_2 = features_1.to(device), features_2.to(device)
+
+        # Get the model output (call the model with the data from this batch)
+        salida_1, salida_2 = model(data_1, data_2, features_1, features_2)
+
+        # Zero the gradients out)
+        optimizer.zero_grad()
+        # Get the Loss
+        loss  = criterion(salida_1, salida_2, target)
+        # Calculate the gradients
+        loss.backward()
+        # Update the weights (using the training step of the optimizer)
+        optimizer.step()
+
+        tepochs.set_postfix(loss=loss.item())
+        running_loss += loss  # add the loss for this batch
+
+      # append the loss for this epoch
+      train_loss.append(running_loss.detach().cpu().item()/len(train_loader))
+
+      # evaluate on validation data
+      model.eval()
+      running_loss = 0.
+
+      for i, (data_1, data_2, target, features_1, features_2) in enumerate(val_loader, 0):
+        # getting the validation set
+        data_1,data_2, target = data_1.to(device),data_2.to(device), target.to(device)
+        features_1, features_2 = features_1.to(device), features_2.to(device)
+        optimizer.zero_grad()
+        output_1,output_2 = model(data_1, data_2, features_1, features_2)
+        loss = criterion(output_1, output_2, target)
+        tepochs.set_postfix(loss=loss.item())
+        running_loss += loss.item()
+
+      validation_loss.append(running_loss/len(val_loader))
+
+  return train_loss, validation_loss
+
+
+# get the accuracy of the siamese
 def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
   model.eval()
   with torch.no_grad():
@@ -182,3 +238,5 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
       total += 1
 
     return correct/total
+  
+
