@@ -1,10 +1,10 @@
-![logo_EPS]()<h1 align='center'>
+<h1 align='center'>
   Sistemas de extracción de similitud de fragmentos musicales
 </h1>
 
 <p align='center'>
-    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/3bbb3c66-2ad4-436b-aef6-9ba56d9ef738' alt='ua-logo' width='300'>
-    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/b517512c-1421-4730-ab96-0733ac9f5e81' alt='ua-logo' width='200'>
+    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/3bbb3c66-2ad4-436b-aef6-9ba56d9ef738' alt='ua-logo' height='100'>
+    <img src='https://github.com/ahidalgocenteno/TFG-Antonio-Hidalgo-Centeno/assets/155966566/b517512c-1421-4730-ab96-0733ac9f5e81' alt='ua-logo' height='100'>
 </p>
 
 <p align='center'>
