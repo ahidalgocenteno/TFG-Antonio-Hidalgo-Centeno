@@ -3,7 +3,7 @@
 </h1>
 
 <p align='center'>
-    <img src='' alt='ua-logo' width='100'>
+    <img src='https://web.ua.es/comun2/plantilla21/imagenes/logo-ua.jpg' alt='ua-logo' width='100'>
 </p>
 
 <p align='center'>
