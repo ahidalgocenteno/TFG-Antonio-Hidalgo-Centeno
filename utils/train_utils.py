@@ -7,6 +7,9 @@ def set_device():
   device = "cuda" if torch.cuda.is_available() else "cpu"
   if device != "cuda":
       print("WARNING : La GPU no está activa.")
+  else:
+      device_name = torch.cuda.get_device_name()
+      print("GPU activa:", device_name)
   return device
 
 def train(model, device, train_loader, validation_loader, epochs):
