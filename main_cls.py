@@ -63,7 +63,7 @@ for n_class,parcial_loader in loaders_parciales.items():
   train_loss, train_acc, validation_loss, validation_acc, total_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
   results['CNN'][n_class] = total_acc
 
-with open('cnn_parcial_results.json', 'w') as fp:
+with open('cnn_results.json', 'w') as fp:
     json.dump(results['CNN'], fp, indent = 1)
 
 # CRNN
@@ -73,6 +73,6 @@ for n_class,parcial_loader in loaders_parciales.items():
   train_loss, train_acc, validation_loss, validation_acc, total_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
   results['CRNN'][n_class] = total_acc
 
-with open('crnn_parcial_results.json', 'w') as fp:
+with open('crnn_results.json', 'w') as fp:
     json.dump(results['CRNN'], fp, indent = 1)
 

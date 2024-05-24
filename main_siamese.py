@@ -93,7 +93,7 @@ if __name__ == '__main__':
         results['SCNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
     
     # save results
-    with open('scnn_parcial_results.json', 'w') as f:
+    with open('scnn_results.json', 'w') as f:
         json.dump(results, f)
 
     # SCRNN
@@ -104,5 +104,5 @@ if __name__ == '__main__':
         results['SCRNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
     
     # save results
-    with open('scrnn_parcial_results.json', 'w') as f:
+    with open('scrnn_results.json', 'w') as f:
         json.dump(results, f)
