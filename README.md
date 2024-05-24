@@ -26,7 +26,20 @@
 
 <pre>python -m pip install -r requirements.txt</pre>
 
-Con lo anterior realizado, puedes comenzar a ejecutar los diferentes módulos del proyecto:
+<p>Para poder realizar los entrenamientos en tiempos razonables, es recomendado usar GPU. Pytorch trabaja con CUDA, un Toolkit de desarrollo que permite trabajar con tarjetas gráficas de NVIDIA para optimizar la ejecucción del código. CUDA Toolkit Puede ser instalado en diferentes sistemas operativos. La versión de CUDA a instalar dependerá de las espeficicaciones de tu equipo. </p>
+
+<p>Para determinar la versión de CUDA compatible con PyTorch puedes visitar el siguiente enlace: <href scr="https://pytorch.org/get-started/locally/"> Instalación de Pytorch en Local </href> </p>
+
+<p>Utilizando Windows y pip, la última versión de CUDA disponible en el momento de escritura es la 12.1. Para instalar la versión de CUDA necesaria puede visitarse el siguiente enlace: <href scr="https://developer.nvidia.com/cuda-toolkit-archive"> Instalación de CUDA</href>.  </p>
+
+<P> Una vez instalado CUDA, PyTorch puede ser instalado, con la instrucción generada por la página oficial de PyTorch mencionada anteriormente. PyTorch compatible con CUDA 12.1 puede ser instalado en el entorno virtual con la siguiente instrucción:</p>
+<pre>python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121</pre>
+
+<p>Una vez realizado todo lo anterior, puede comprobarse que CUDA y PyTorch funcionan conjuntamente con la siguiente instrucción: </p>
+
+<pre>python check_gpu.py</pre>
+
+<p>Si en la consola aparece el nombre de la gpu, toda la instalación ha ido correctamente. Con lo anterior realizado, puedes comenzar a ejecutar los diferentes módulos del proyecto.</p>
 
 <h3>Descargar Datos</h3>
 
