@@ -203,7 +203,6 @@ def train_siamese_with_features(model, device, train_loader, val_loader, epochs)
 
   return train_loss, validation_loss
 
-
 # get the accuracy of the siamese
 def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
   model.eval()
@@ -213,7 +212,7 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
     val_labels = []
     for data, target in val_loader:
       data, target = data.to(device), target.to(device)
-      output = model.get_embedding(data)
+      output = model.forward_once(data)
       val_embeddings.append(output)
       val_labels.append(target)
     val_embeddings = torch.cat(val_embeddings)
@@ -224,7 +223,7 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
     class_samples_labels = []
     for data, target in class_samples_loader:
       data, target = data.to(device), target.to(device)
-      output = model.foward_once(data)
+      output = model.forward_once(data)
       class_samples_embeddings.append(output)
       class_samples_labels.append(target)
     class_samples_embeddings = torch.cat(class_samples_embeddings)
@@ -244,5 +243,3 @@ def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
       total += 1
 
     return correct/total
-  
-
