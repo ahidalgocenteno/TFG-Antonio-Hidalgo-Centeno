@@ -56,7 +56,7 @@ if __name__ == '__main__':
     siamese_parcial_datasets = {}
     siamese_parcial_loaders = {}
     ratio = 0.5
-    data_per_class = [80, 50, 10, 5, 1]
+    data_per_class = [10, 5, 1]
 
     # val siamese dataset
     print('Siamese Validation Data:')
@@ -71,14 +71,14 @@ if __name__ == '__main__':
         siamese_parcial_loaders[n_per_class] = torch.utils.data.DataLoader(siamese_parcial_datasets[n_per_class], batch_size=25, shuffle=True, num_workers=0)
         print('\n')
 
-    # Muestra un batch de ejemplo
-    vis_dataloader = torch.utils.data.DataLoader(siamese_parcial_datasets[5],shuffle=True,num_workers=0,batch_size=8)
-    example_batch = next(iter(vis_dataloader))
-    # Si la etiqueta = 1, los géneros son diferentes (máxima distancia) Caso contrario etiqueta = 0 (minima distancia)
-    concatenated = torch.cat((example_batch[0], example_batch[1]),0)
-    # Muestra el batch
-    imshow(utils.make_grid(concatenated))
-    print(example_batch[2].numpy().reshape(-1))
+    # # Muestra un batch de ejemplo
+    # vis_dataloader = torch.utils.data.DataLoader(siamese_parcial_datasets[5],shuffle=True,num_workers=0,batch_size=8)
+    # example_batch = next(iter(vis_dataloader))
+    # # Si la etiqueta = 1, los géneros son diferentes (máxima distancia) Caso contrario etiqueta = 0 (minima distancia)
+    # concatenated = torch.cat((example_batch[0], example_batch[1]),0)
+    # # Muestra el batch
+    # imshow(utils.make_grid(concatenated))
+    # print(example_batch[2].numpy().reshape(-1))
 
     # device
     device = set_device()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     
     # save results
     with open('scnn_results.json', 'w') as f:
-        json.dump(results, f)
+        json.dump(results['SCNN'], f, indent=1)
 
     # SCRNN
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
@@ -105,4 +105,4 @@ if __name__ == '__main__':
     
     # save results
     with open('scrnn_results.json', 'w') as f:
-        json.dump(results, f)
+        json.dump(results['SCRNN'], f, indent=1)
