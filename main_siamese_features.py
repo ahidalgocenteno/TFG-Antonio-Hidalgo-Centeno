@@ -94,7 +94,7 @@ if __name__ == '__main__':
     
     # save results
     with open('scnn_feat_results.json', 'w') as f:
-        json.dump(results, f)
+        json.dump(results['SCNN'], f)
 
     # SCRNN with features
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
@@ -105,4 +105,4 @@ if __name__ == '__main__':
     
     # save results
     with open('scrnn_feat_results.json', 'w') as f:
-        json.dump(results, f)
+        json.dump(results['SCRNN'], f)
