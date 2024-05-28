@@ -2,58 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class siamese_convolutional_with_features_net(nn.Module):
-  def __init__(self):
-    super(siamese_convolutional_with_features_net, self).__init__()
-    self.siamese_conv = siamese_convolutional_net()
-    self.fc = nn.Sequential(
-        nn.Linear(58, 128),
-        nn.ReLU(),
-        nn.Linear(128, 64),
-        nn.ReLU(),
-        nn.Linear(64, 32)
-    )
-
-  def forward(self, input1, input2, features1, features2):
-      # Pass the inputs through the SCNN
-      spectogram_output1, spectogram_output2 = self.siamese_conv(input1,input2)
-
-      # Pass the features through the fully connected layers
-      features_output1 = self.fc(features1)
-      features_output2 = self.fc(features2)
-
-      # Concatenate the CNN outputs and the features outputs
-      output1 = torch.cat((spectogram_output1, features_output1), dim=1)
-      output2 = torch.cat((spectogram_output2, features_output2), dim=1)
-
-      return output1,output2
-  
-class siamese_recurrent_with_features_net(nn.Module):
-  def __init__(self):
-    super(siamese_recurrent_with_features_net, self).__init__()
-    self.siamese_rnn = siamese_recurrent_net()
-    self.fc = nn.Sequential(
-        nn.Linear(58, 128),
-        nn.ReLU(),
-        nn.Linear(128, 64),
-        nn.ReLU(),
-        nn.Linear(64, 32)
-    )
-
-  def forward(self, input1, input2, features1, features2):
-      # Pass the inputs through the RNN
-      spectogram_output1,spectogram_output2 = self.siamese_rnn(input1,input2)
-
-      # Pass the features through the fully connected layers
-      features_output1 = self.fc(features1)
-      features_output2 = self.fc(features2)
-
-      # Concatenate the RNN outputs and the features outputs
-      output1 = torch.cat((spectogram_output1, features_output1), dim=1)
-      output2 = torch.cat((spectogram_output2, features_output2), dim=1)
-
-      return output1,output2
-
 class siamese_convolutional_net(nn.Module):
   def __init__(self):
     super(siamese_convolutional_net, self).__init__()
