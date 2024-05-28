@@ -8,7 +8,7 @@ from utils.helper_utils import imshow
 
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDatasetRatiod, load_datos_parciales
-from utils.train_utils import train_siamese_network, set_device, get_accuracy_siamese
+from utils.train_utils import train_siamese_network, set_device, siamese_clasification_kNN
 
 from utils.seed import seed_everything
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # parciales en siamesa
     siamese_parcial_datasets = {}
     siamese_parcial_loaders = {}
-    ratio = 0.5
+    ratio = 0.25
     data_per_class = [10, 5, 1]
 
     # val siamese dataset
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         print(f'Training for {n_class} data per class.')
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader,siamese_val_loader, 100)
-        results['SCNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
+        results['SCNN'][n_class] = siamese_clasification_kNN(net, device, val_loader, loaders_parciales[1])
     
     # save results
     with open('scnn_results.json', 'w') as f:
@@ -101,7 +101,7 @@ if __name__ == '__main__':
         print(f'Training for {n_class} data per class.')
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader,siamese_val_loader, 100)
-        results['SCRNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
+        results['SCRNN'][n_class] = siamese_clasification_kNN(net, device, val_loader, loaders_parciales[1])
     
     # save results
     with open('scrnn_results.json', 'w') as f:

@@ -204,7 +204,7 @@ def train_siamese_with_features(model, device, train_loader, val_loader, epochs)
   return train_loss, validation_loss
 
 # get the accuracy of the siamese
-def get_accuracy_siamese(model, device, val_loader, class_samples_loader):
+def siamese_clasification_kNN(model, device, val_loader, class_samples_loader):
   model.eval()
   with torch.no_grad():
     # get the embeddings for the validation set
