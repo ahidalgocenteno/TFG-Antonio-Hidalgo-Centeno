@@ -1,7 +1,9 @@
 import torch
 from torchvision import datasets, transforms, utils
+
 import json
 import collections
+import os
 
 from utils.data_utils import DatasetWithFeatures, load_datos_parciales
 from utils.seed import seed_everything
@@ -12,6 +14,13 @@ from networks.mlp_net import mlp_net
 if __name__ == '__main__':
     # Seed
     seed_everything(42, benchmark=False)
+
+    results_dir = 'results/'
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+    plots_dir = 'plots/'
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
 
     spectrograms_dir = "Data/images_original/"
     folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
@@ -68,5 +77,5 @@ if __name__ == '__main__':
     results['kNN'] = test_accuracy
 
     # save results
-    with open('features_results.json', 'w') as f:
+    with open(os.path.join(results_dir, 'features_results.json'), 'w') as f:
         json.dump(results, f, indent=1)

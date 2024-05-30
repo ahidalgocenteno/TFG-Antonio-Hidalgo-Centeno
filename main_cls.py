@@ -3,6 +3,7 @@ from torchvision import datasets, transforms
 
 import json
 import collections
+import os
 
 from utils.data_utils import load_datos_parciales
 from train_and_test.train import train, set_device
@@ -18,6 +19,13 @@ from utils.seed import seed_everything
 if __name__ == '__main__':
   # Seed
   seed_everything(42, benchmark=False)
+
+  results_dir = 'results/'
+  if not os.path.exists(results_dir):
+    os.makedirs(results_dir)
+  plots_dir = 'plots/'
+  if not os.path.exists(plots_dir):
+    os.makedirs(plots_dir)
 
   spectrograms_dir = "Data/images_original/"
   folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
@@ -35,7 +43,7 @@ if __name__ == '__main__':
   test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=25, shuffle=True, num_workers=0)
 
   # datos parciales
-  data_per_class = [80, 50, 10, 5, 1]
+  data_per_class = [1]
   datasets_parciales = {}
   loaders_parciales = {}
 
@@ -71,12 +79,12 @@ for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = convolutional_net().to(device)
   train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'cnn_{n_class}.png')
+  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=os.path.join(plots_dir, f'cnn_{n_class}.png'))
 
   test_accuracy = test(net, device, test_loader)
   results['CNN'][n_class] = test_accuracy
 
-with open('cnn_results.json', 'w') as fp:
+with open(os.path.join(results_dir, 'cnn_results.json'), 'w') as fp:
     json.dump(results['CNN'], fp, indent = 1)
 
 print('Training and Testing  CRNN')
@@ -85,11 +93,11 @@ for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = recurrent_convolutional_net().to(device)
   train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'crnn_{n_class}.png')
+  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=os.path.join(plots_dir, f'crnn_{n_class}.png'))
 
   test_accuracy = test(net, device, test_loader)
   results['CRNN'][n_class] = test_accuracy
 
-with open('crnn_results.json', 'w') as fp:
+with open(os.path.join(results_dir, 'crnn_results.json'), 'w') as fp:
     json.dump(results['CRNN'], fp, indent = 1)
 

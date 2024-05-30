@@ -3,6 +3,7 @@ from torchvision import datasets, transforms, utils
 
 import json
 import collections
+import os
 
 from utils.helper_utils import imshow, plot_loss
 
@@ -17,6 +18,13 @@ from utils.seed import seed_everything
 if __name__ == '__main__':
     # Seed
     seed_everything(42, benchmark=False)
+
+    results_dir = 'results/'
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+    plots_dir = 'plots/'
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
 
     spectrograms_dir = "Data/images_original/"
     folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
@@ -96,15 +104,15 @@ if __name__ == '__main__':
         print(f'Training for {n_class} data per class.')
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 10)
-        plot_loss(train_loss, validation_loss, fname=f'scnn_loss_{n_class}.png', show=False, save=True)
+        plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCNN'][n_class] = test_accuracy
         results['SCNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
     
     # save results
-    with open('scnn_results.json', 'w') as f:
+    with open(os.path.join(results_dir, 'scnn_results.json'), 'w') as f:
         json.dump(results['SCNN'], f, indent=1)
-    with open('scnn_features_results.json', 'w') as f:
+    with open(os.path.join(results_dir, 'scnn_features_results.json'), 'w') as f:
         json.dump(results['SCNN_features'], f, indent=1)
 
     # SCRNN
@@ -113,16 +121,16 @@ if __name__ == '__main__':
         print(f'Training for {n_class} data per class.')
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 10)
-        plot_loss(train_loss, validation_loss, fname=f'scrnn_loss_{n_class}.png', show=False, save=True)
+        plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCRNN'][n_class] = test_accuracy
         results['SCRNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
 
     
     # save results
-    with open('scrnn_results.json', 'w') as f:
+    with open(os.path.join(results_dir, 'scrnn_results.json'), 'w') as f:
         json.dump(results['SCRNN'], f, indent=1)
-    with open('scnn_features_results.json', 'w') as f:
-        json.dump(results['SCNN_features'], f, indent=1)
+    with open(os.path.join(results_dir, 'scrnn_features_results.json'), 'w') as f:
+        json.dump(results['SCRNN_features'], f, indent=1)
 
     print(results)
