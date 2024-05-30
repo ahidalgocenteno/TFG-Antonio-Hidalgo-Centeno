@@ -19,7 +19,7 @@ def plot_audio_wave(y,sample_rate,title):
 
 def plot_loss(train_loss,val_loss,fname = 'loss.png',show = True, save = True):
   epochs = len(train_loss)
-  fig,ax1,ax2 = plt.subplots(1,2)
+  fig, (ax1,ax2) = plt.subplots(1,2)
   ax1.plot(list(range(epochs)), train_loss, label='Train Loss')
   ax1.set_xlabel('Epochs')
   ax1.set_ylabel('Loss')
@@ -31,6 +31,8 @@ def plot_loss(train_loss,val_loss,fname = 'loss.png',show = True, save = True):
   ax2.set_ylabel('Loss')
   ax2.set_title('Epoch vs Loss')
   ax2.legend()
+
+  fig.set_size_inches(15.5, 5.5)
 
   if save:
     plt.savefig(fname)
