@@ -5,7 +5,7 @@ import json
 import collections
 
 from utils.data_utils import load_datos_parciales
-from utils.train_test_utils import train, set_device
+from utils.train_test_utils import train, test, set_device
 
 from networks.convolutional_net import convolutional_net
 from networks.recurrent_convolutional_net import recurrent_convolutional_net
@@ -30,8 +30,11 @@ if __name__ == '__main__':
   val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
   val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
+  test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
+  test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=25, shuffle=True, num_workers=0)
+
   # datos parciales
-  data_per_class = [80, 50, 10, 5, 1]
+  data_per_class = [1]
   datasets_parciales = {}
   loaders_parciales = {}
 
@@ -66,9 +69,11 @@ print('Training and Testing CNN')
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc, total_val_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CNN'][n_class] = total_val_acc
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
   plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'cnn_{n_class}.png')
+
+  test_accuracy = test(net, device, test_loader)
+  results['CNN'][n_class] = test_accuracy
 
 with open('cnn_results.json', 'w') as fp:
     json.dump(results['CNN'], fp, indent = 1)
@@ -78,9 +83,11 @@ print('Training and Testing  CRNN')
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = recurrent_convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc, total_val_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CRNN'][n_class] = total_val_acc
-  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'cnn_{n_class}.png')
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'crnn_{n_class}.png')
+
+  test_accuracy = test(net, device, test_loader)
+  results['CRNN'][n_class] = test_accuracy
 
 with open('crnn_results.json', 'w') as fp:
     json.dump(results['CRNN'], fp, indent = 1)

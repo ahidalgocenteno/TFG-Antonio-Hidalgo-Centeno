@@ -72,10 +72,19 @@ def train(model, device, train_loader, validation_loader, epochs):
       validation_loss.append(running_loss/len(validation_loader))
       validation_acc.append(correct/total)
 
-      # total accuracy
-      acc_total = correct/total
+  return train_loss, train_acc, validation_loss, validation_acc
 
-  return train_loss, train_acc, validation_loss, validation_acc, acc_total
+def test(model, device, test_loader):
+  model.eval()
+  correct, total = 0, 0
+  with torch.no_grad():
+    for data, target in test_loader:
+      data, target = data.to(device), target.to(device)
+      output = model(data)
+      _, predicted = torch.max(output, 1)
+      total += target.size(0)
+      correct += (predicted == target).sum().item()
+  return correct/total
 
 # Función de pérdida Siamesa
 class ContrastiveLoss(nn.Module):
