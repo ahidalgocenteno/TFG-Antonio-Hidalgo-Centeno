@@ -17,7 +17,7 @@ def plot_audio_wave(y,sample_rate,title):
   plt.show()
 
 
-def plot_loss(train_loss,fname = 'loss.png'):
+def plot_loss(train_loss,fname = 'loss.png',show = True, save = True):
   epochs = len(train_loss)
   fig,ax = plt.subplots()
   ax.plot(list(range(epochs)), train_loss, label='Train Loss')
@@ -26,11 +26,13 @@ def plot_loss(train_loss,fname = 'loss.png'):
   ax.set_title('Epoch vs Loss')
   ax.legend()
 
-  plt.savefig(fname)
-  plt.show()
+  if save:
+    plt.savefig(fname)
+  if show:
+    plt.show()
 
 
-def plot_acc(train_acc,fname = 'acc.png'):
+def plot_acc(train_acc,fname = 'acc.png', show = True, save = True):
   epochs = len(train_acc)
   fig,ax = plt.subplots()
   ax.plot(list(range(epochs)), train_acc, label='Training Loss')
@@ -39,8 +41,10 @@ def plot_acc(train_acc,fname = 'acc.png'):
   ax.set_title('Epoch vs Accuracy')
   ax.legend()
 
-  plt.savefig(fname)
-  plt.show()
+  if save:
+    plt.savefig(fname)
+  if show:
+    plt.show()
 
 
 def imshow(img, text=None):
@@ -54,7 +58,7 @@ def imshow(img, text=None):
     plt.show()
 
 
-def plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc):
+def plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show = True, save = True, fname = 'loss_acc.png'):
   epochs = len(train_loss)
   fig, (ax1, ax2) = plt.subplots(1, 2)
   ax1.plot(list(range(epochs)), train_loss, label='Training Loss')
@@ -71,4 +75,8 @@ def plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc):
   ax2.set_title('Epoch vs Accuracy')
   ax2.legend()
   fig.set_size_inches(15.5, 5.5)
-  plt.show()
+  
+  if save:
+    plt.savefig(fname)
+  if show:
+    plt.show()
