@@ -30,27 +30,31 @@ if __name__ == '__main__':
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
     # datos parciales
-    data_per_class = [50, 10, 5, 1]
+    data_per_class = [80, 50, 10, 5, 1]
     datasets_parciales = {}
     loaders_parciales = {}
-    datasets_parciales[80] = train_dataset
-    loaders_parciales[80] = train_loader
 
     print('Complete data:', len(train_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
     # Loop through different cases of data per class
-    for n_por_class in data_per_class:
-        # call loader for n per class
-        train_parcial_dir = load_datos_parciales(n_por_class, train_dir)
-        # Get datasets from directories with ImageFolder
-        train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
+    for n_per_class in data_per_class:
+        if n_per_class == 80:
+            train_parcial_dataset = train_dataset
+            train_parcial_loader = train_loader
+        else:
+            # call loader for n per class
+            train_parcial_dir = load_datos_parciales(n_per_class, train_dir)         
+            # Get datasets from directories with ImageFolder
+            train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
+            # Get loaders
+            train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+        
         # Save dataset in dict
-        datasets_parciales[n_por_class] = train_parcial_dataset
-        # Get loaders and store them in the dictionary
-        train_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+        datasets_parciales[n_per_class] = train_parcial_dataset
         # Save loader in dict
-        loaders_parciales[n_por_class] = train_loader
+        loaders_parciales[n_per_class] = train_parcial_loader
 
+        print('Partial data for', n_per_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
     # parciales en siamesa
     siamese_parcial_datasets = {}
