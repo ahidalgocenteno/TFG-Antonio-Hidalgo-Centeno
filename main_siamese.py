@@ -8,7 +8,8 @@ from utils.helper_utils import imshow, plot_loss
 
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDataset, load_datos_parciales
-from utils.train_test_utils import train_siamese_network, test_siamese_network, set_device
+from train_and_test.train import train_siamese_network, set_device
+from train_and_test.test import test_siamese_network
 
 from utils.seed import seed_everything
 
