@@ -7,6 +7,7 @@ from utils.data_utils import DatasetWithFeatures, load_datos_parciales
 from utils.seed import seed_everything
 from train_and_test.train import set_device
 from train_and_test.test import test_kNN_features
+from networks.mlp_net import mlp_net
 
 if __name__ == '__main__':
     # Seed

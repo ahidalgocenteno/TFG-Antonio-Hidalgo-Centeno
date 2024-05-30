@@ -7,9 +7,9 @@ import collections
 from utils.helper_utils import imshow, plot_loss
 
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
-from utils.data_utils import SiameseNetworkDataset, load_datos_parciales
+from utils.data_utils import SiameseNetworkDataset, DatasetWithFeatures, load_datos_parciales
 from train_and_test.train import train_siamese_network, set_device
-from train_and_test.test import test_siamese_network
+from train_and_test.test import test_siamese_network, test_siamese_with_features
 
 from utils.seed import seed_everything
 
@@ -32,6 +32,9 @@ if __name__ == '__main__':
 
     test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=25, shuffle=True, num_workers=0)
+
+    test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
+    test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=25, shuffle=True, num_workers=0)
 
     # datos parciales
     data_per_class = [1]
@@ -70,6 +73,10 @@ if __name__ == '__main__':
     siamese_val_dataset = SiameseNetworkDataset(val_dataset,transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
     siamese_val_loader = torch.utils.data.DataLoader(siamese_val_dataset, batch_size=25, shuffle=True, num_workers=0)
     print('\n')
+    # test class samples
+    test_class_samples_dataset = DatasetWithFeatures(datasets_parciales[1],transforms.Compose([transforms.ToTensor(),]))
+    test_class_samples_loader = torch.utils.data.DataLoader(test_class_samples_dataset, batch_size=25, shuffle=True, num_workers=0)
+    
 
     # recorre los diferentes casos de data por clase
     for n_per_class in data_per_class:
@@ -88,25 +95,34 @@ if __name__ == '__main__':
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_convolutional_net().to(device)
-        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 100)
+        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 10)
         plot_loss(train_loss, validation_loss, fname=f'scnn_loss_{n_class}.png', show=False, save=True)
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCNN'][n_class] = test_accuracy
+        results['SCNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
     
     # save results
     with open('scnn_results.json', 'w') as f:
         json.dump(results['SCNN'], f, indent=1)
+    with open('scnn_features_results.json', 'w') as f:
+        json.dump(results['SCNN_features'], f, indent=1)
 
     # SCRNN
     print('Training and Testing SCRNN')
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_recurrent_net().to(device)
-        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 100)
+        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 10)
         plot_loss(train_loss, validation_loss, fname=f'scrnn_loss_{n_class}.png', show=False, save=True)
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCRNN'][n_class] = test_accuracy
+        results['SCRNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
+
     
     # save results
     with open('scrnn_results.json', 'w') as f:
         json.dump(results['SCRNN'], f, indent=1)
+    with open('scnn_features_results.json', 'w') as f:
+        json.dump(results['SCNN_features'], f, indent=1)
+
+    print(results)
