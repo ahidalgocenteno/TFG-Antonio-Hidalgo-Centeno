@@ -62,22 +62,24 @@ device = set_device()
 results = collections.defaultdict(dict)
 
 # CNN 
+print('Training and Testing CNN')
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc, total_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CNN'][n_class] = total_acc
+  train_loss, train_acc, validation_loss, validation_acc, total_val_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  results['CNN'][n_class] = total_val_acc
   plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'cnn_{n_class}.png')
 
 with open('cnn_results.json', 'w') as fp:
     json.dump(results['CNN'], fp, indent = 1)
 
+print('Training and Testing  CRNN')
 # CRNN
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = recurrent_convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc, total_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
-  results['CRNN'][n_class] = total_acc
+  train_loss, train_acc, validation_loss, validation_acc, total_val_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  results['CRNN'][n_class] = total_val_acc
   plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=f'cnn_{n_class}.png')
 
 with open('crnn_results.json', 'w') as fp:

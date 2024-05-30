@@ -90,22 +90,24 @@ if __name__ == '__main__':
 
 
     # SCNN
+    print('Training and Testing SCNN')
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_convolutional_net().to(device)
-        train_loss, validation_loss, total_acc = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, val_loader, loaders_parciales[1], 100)
-        results['SCNN'][n_class] = total_acc
+        train_loss, validation_loss, total_val_acc = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, val_loader, loaders_parciales[1], 100)
+        results['SCNN'][n_class] = total_val_acc
     
     # save results
     with open('scnn_results.json', 'w') as f:
         json.dump(results['SCNN'], f, indent=1)
 
     # SCRNN
+    print('Training and Testing SCRNN')
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_recurrent_net().to(device)
-        train_loss, validation_loss, total_acc = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, val_loader, loaders_parciales[1], 100)
-        results['SCRNN'][n_class] = total_acc
+        train_loss, validation_loss, total_val_acc = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, val_loader, loaders_parciales[1], 100)
+        results['SCRNN'][n_class] = total_val_acc
     
     # save results
     with open('scrnn_results.json', 'w') as f:

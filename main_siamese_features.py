@@ -6,9 +6,9 @@ import collections
 
 from utils.helper_utils import imshow
 
-from networks.siamese_net import siamese_convolutional_with_features_net, siamese_recurrent_with_features_net
+from networks.siamese_net import siamese_convolutional_net, siamese_recurrent_net
 from utils.data_utils import SiameseNetworkDatasetRatiodWithFeatures, load_datos_parciales
-from utils.train_utils import train_siamese_with_features, set_device, get_accuracy_siamese
+from utils.train_utils import set_device, train_siamese_with_features, siamese_features_clasification_kNN
 
 from utils.seed import seed_everything
 
@@ -30,33 +30,38 @@ if __name__ == '__main__':
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
     # datos parciales
-    data_per_class = [50, 10, 5, 1]
+    data_per_class = [80, 50, 10, 5, 1]
     datasets_parciales = {}
     loaders_parciales = {}
-    datasets_parciales[80] = train_dataset
-    loaders_parciales[80] = train_loader
 
     print('Complete data:', len(train_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
     # Loop through different cases of data per class
-    for n_por_class in data_per_class:
-        # call loader for n per class
-        train_parcial_dir = load_datos_parciales(n_por_class, train_dir)
-        # Get datasets from directories with ImageFolder
-        train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
+    for n_per_class in data_per_class:
+        if n_per_class == 80:
+            train_parcial_dataset = train_dataset
+            train_parcial_loader = train_loader
+        else:
+            # call loader for n per class
+            train_parcial_dir = load_datos_parciales(n_per_class, train_dir)         
+            # Get datasets from directories with ImageFolder
+            train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
+            # Get loaders
+            train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+        
         # Save dataset in dict
-        datasets_parciales[n_por_class] = train_parcial_dataset
-        # Get loaders and store them in the dictionary
-        train_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+        datasets_parciales[n_per_class] = train_parcial_dataset
         # Save loader in dict
-        loaders_parciales[n_por_class] = train_loader
+        loaders_parciales[n_per_class] = train_parcial_loader
+
+        print('Partial data for', n_per_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
 
 
     # parciales en siamesa
     siamese_parcial_datasets = {}
     siamese_parcial_loaders = {}
     ratio = 0.5
-    data_per_class = [80, 50, 10, 5, 1]
+    data_per_class = [10, 5, 1]
 
     # val siamese dataset
     print('Siamese Validation Data:')
@@ -86,22 +91,24 @@ if __name__ == '__main__':
 
 
     # SCNN with features
+    print('Training and Testing SCNN with features')
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
-        net = siamese_recurrent_with_features_net().to(device)
-        train_loss, validation_loss = train_siamese_with_features(net, device, siamese_parcial_loader,siamese_val_loader, 100)
-        results['SCNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
+        net = siamese_convolutional_net().to(device)
+        train_loss, validation_loss, total_val_acc = train_siamese_with_features(net, device, siamese_parcial_loader,siamese_val_loader, val_loader, loaders_parciales[1], 100)
+        results['SCNN'][n_class] = total_val_acc
     
     # save results
     with open('scnn_feat_results.json', 'w') as f:
         json.dump(results['SCNN'], f)
 
     # SCRNN with features
+    print('Training and Testing SCRNN with features')
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
-        net = siamese_convolutional_with_features_net().to(device)
-        train_loss, validation_loss = train_siamese_with_features(net, device, siamese_parcial_loader,siamese_val_loader, 100)
-        results['SCRNN'][n_class] = get_accuracy_siamese(net, device, val_loader, loaders_parciales[1])
+        net = siamese_recurrent_net().to(device)
+        train_loss, validation_loss, total_val_acc = train_siamese_with_features(net, device, siamese_parcial_loader,siamese_val_loader, val_loader, loaders_parciales[1], 100)
+        results['SCRNN'][n_class] = total_val_acc
     
     # save results
     with open('scrnn_feat_results.json', 'w') as f:
