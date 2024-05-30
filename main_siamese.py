@@ -7,7 +7,7 @@ import collections
 from utils.helper_utils import imshow, plot_loss
 
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
-from utils.data_utils import SiameseNetworkDatasetRatiod, load_datos_parciales
+from utils.data_utils import SiameseNetworkDataset, load_datos_parciales
 from utils.train_test_utils import train_siamese_network, test_siamese_network, set_device
 
 from utils.seed import seed_everything
@@ -66,14 +66,14 @@ if __name__ == '__main__':
 
     # val siamese dataset
     print('Siamese Validation Data:')
-    siamese_val_dataset = SiameseNetworkDatasetRatiod(val_dataset,transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+    siamese_val_dataset = SiameseNetworkDataset(val_dataset,transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
     siamese_val_loader = torch.utils.data.DataLoader(siamese_val_dataset, batch_size=25, shuffle=True, num_workers=0)
     print('\n')
 
     # recorre los diferentes casos de data por clase
     for n_per_class in data_per_class:
         print(f'Data for {n_per_class} images per class:')
-        siamese_parcial_datasets[n_per_class] = SiameseNetworkDatasetRatiod(datasets_parciales[n_per_class],transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+        siamese_parcial_datasets[n_per_class] = SiameseNetworkDataset(datasets_parciales[n_per_class],transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
         siamese_parcial_loaders[n_per_class] = torch.utils.data.DataLoader(siamese_parcial_datasets[n_per_class], batch_size=25, shuffle=True, num_workers=0)
         print('\n')
 

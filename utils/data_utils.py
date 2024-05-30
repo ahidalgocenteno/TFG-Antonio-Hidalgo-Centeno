@@ -44,61 +44,8 @@ def compute_number_of_pairs(N, M):
     total_pairs = math.comb(total_images,2)
     return total_pairs
 
+
 class SiameseNetworkDataset(torch.utils.data.Dataset):
-  def __init__(self,imageFolderDataset,transform=None):
-    self.imageFolderDataset = imageFolderDataset
-    self.transform = transform
-    self.pairs = self.generate_pairs()
-
-  def generate_pairs(self):
-    pairs = []
-    # obtiene todas las imagenes y su etiqueta (img[1]) de cada genero en el folder dataset
-    # convierte a set para que todos los elementos sean unicos, y obtiene una lista
-    genres_labels = sorted(list(set(img[1] for img in self.imageFolderDataset.imgs)))
-
-    # todas las imágenes de cada género
-    genre_images_dict = {genre_label: sorted([img for img in self.imageFolderDataset.imgs if img[1] == genre_label]) for genre_label in genres_labels}
-
-    # Generate pairs across all possible combinations of images from different genres
-    for genre_pair in combinations(genres_labels, 2):
-        # Pairs from different genre
-        genre1_images = genre_images_dict[genre_pair[0]]
-        genre2_images = genre_images_dict[genre_pair[1]]
-        genre_pairs = list(product(genre1_images, genre2_images))
-        pairs.extend(genre_pairs)
-
-        same_genre_pairs = list(combinations(genre1_images,2))
-        pairs.extend(same_genre_pairs)
-
-    # Sort the pairs after they are generated
-    pairs = sorted(pairs)
-    return pairs
-
-  def __getitem__(self,index):
-    img0_tuple, img1_tuple = self.pairs[index]
-
-    # obtiene cada imagen
-    img0 = Image.open(img0_tuple[0])
-    img1 = Image.open(img1_tuple[0])
-
-    # combierte a RGB, para quitar el canal alpha
-    img0 = img0.convert("RGB")
-    img1 = img1.convert("RGB")
-
-    # transforma
-    if self.transform is not None:
-      img0 = self.transform(img0)
-      img1 = self.transform(img1)
-
-    # devuelve 1 si son diferentes, 1 si son iguales
-    return img0, img1, torch.from_numpy(np.array([int(img1_tuple[1] != img0_tuple[1])], dtype=np.float32))
-
-
-  def __len__(self):
-    return len(self.pairs)
-
-
-class SiameseNetworkDatasetRatiod(torch.utils.data.Dataset):
     def __init__(self, imageFolderDataset, transform=None, ratio=0.5, maximize_ratio = False):
         self.imageFolderDataset = imageFolderDataset
         self.transform = transform
@@ -171,7 +118,7 @@ class SiameseNetworkDatasetRatiod(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.pairs)
     
-class SiameseNetworkDatasetRatiodWithFeatures(torch.utils.data.Dataset):
+class SiameseNetworkDatasetFeatures(torch.utils.data.Dataset):
     def __init__(self, imageFolderDataset, transform=None, ratio=0.5, maximize_ratio = False, features_filename = "Data/features_30_sec.csv"):
         self.imageFolderDataset = imageFolderDataset
         self.transform = transform
