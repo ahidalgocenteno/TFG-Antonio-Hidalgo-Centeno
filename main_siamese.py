@@ -8,7 +8,7 @@ from utils.helper_utils import imshow
 
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDatasetRatiod, load_datos_parciales
-from utils.train_utils import train_siamese_network, set_device
+from utils.train_test_utils import train_siamese_network, set_device
 
 from utils.seed import seed_everything
 
