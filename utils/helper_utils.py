@@ -17,29 +17,20 @@ def plot_audio_wave(y,sample_rate,title):
   plt.show()
 
 
-def plot_loss(train_loss,fname = 'loss.png',show = True, save = True):
+def plot_loss(train_loss,val_loss,fname = 'loss.png',show = True, save = True):
   epochs = len(train_loss)
-  fig,ax = plt.subplots()
-  ax.plot(list(range(epochs)), train_loss, label='Train Loss')
-  ax.set_xlabel('Epochs')
-  ax.set_ylabel('Loss')
-  ax.set_title('Epoch vs Loss')
-  ax.legend()
+  fig,ax1,ax2 = plt.subplots(1,2)
+  ax1.plot(list(range(epochs)), train_loss, label='Train Loss')
+  ax1.set_xlabel('Epochs')
+  ax1.set_ylabel('Loss')
+  ax1.set_title('Epoch vs Loss')
+  ax1.legend()
 
-  if save:
-    plt.savefig(fname)
-  if show:
-    plt.show()
-
-
-def plot_acc(train_acc,fname = 'acc.png', show = True, save = True):
-  epochs = len(train_acc)
-  fig,ax = plt.subplots()
-  ax.plot(list(range(epochs)), train_acc, label='Training Loss')
-  ax.set_xlabel('Epochs')
-  ax.set_ylabel('Accuracy')
-  ax.set_title('Epoch vs Accuracy')
-  ax.legend()
+  ax2.plot(list(range(epochs)), val_loss, label='Validation Loss')
+  ax2.set_xlabel('Epochs')
+  ax2.set_ylabel('Loss')
+  ax2.set_title('Epoch vs Loss')
+  ax2.legend()
 
   if save:
     plt.savefig(fname)
