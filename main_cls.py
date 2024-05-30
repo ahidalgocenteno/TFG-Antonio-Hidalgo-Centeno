@@ -31,7 +31,7 @@ if __name__ == '__main__':
   val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
 
   # datos parciales
-  data_per_class = [50, 10, 5, 1]
+  data_per_class = [80, 50, 10, 5, 1]
   datasets_parciales = {}
   loaders_parciales = {}
 
