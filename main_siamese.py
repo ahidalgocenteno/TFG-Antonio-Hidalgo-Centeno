@@ -113,7 +113,7 @@ if __name__ == '__main__':
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, 100)
         plot_loss(train_loss, validation_loss, fname=f'scrnn_loss_{n_class}.png', show=False, save=True)
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
-        results['SCNN'][n_class] = test_accuracy
+        results['SCRNN'][n_class] = test_accuracy
     
     # save results
     with open('scrnn_results.json', 'w') as f:
