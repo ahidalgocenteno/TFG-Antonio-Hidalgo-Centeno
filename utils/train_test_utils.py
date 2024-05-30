@@ -103,7 +103,7 @@ class ContrastiveLoss(nn.Module):
 
       return loss_contrastive
 # Entrenamiento Siamesa
-def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, val_loader_singles, class_samples_loader, epochs):
+def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, epochs):
   criterion =  ContrastiveLoss()
   optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) 
 
@@ -155,13 +155,17 @@ def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, va
 
       validation_loss.append(running_loss/len(val_loader_pairs))
       
+  return train_loss, validation_loss
+
+# test
+def test_siamese_network(model, device, test_loader_singles, class_samples_loader):
   # get the accuracy of the siamese with kNN classifier
   model.eval()
   with torch.no_grad():
     # get the embeddings for the validation set
     val_embeddings = []
     val_labels = []
-    for data, target in val_loader_singles:
+    for data, target in test_loader_singles:
       data, target = data.to(device), target.to(device)
       output = model.forward_once(data)
       val_embeddings.append(output)
@@ -193,11 +197,9 @@ def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, va
         correct += 1
       total += 1
 
-  acc = correct/total
+  return correct/total
 
-  return train_loss, validation_loss, acc
-
-def train_siamese_with_features(model, device, train_loader_pairs, val_loader_pairs, val_loader_singles, class_samples_loader, epochs):
+def train_siamese_with_features(model, device, train_loader_pairs, val_loader_pairs, epochs):
   criterion =  ContrastiveLoss()
   optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 
@@ -248,12 +250,15 @@ def train_siamese_with_features(model, device, train_loader_pairs, val_loader_pa
 
       validation_loss.append(running_loss/len(val_loader_pairs))
 
+  return train_loss, validation_loss
+
+def test_siamese_with_features(model, device, test_loader_singles, class_samples_loader):
   model.eval()
   with torch.no_grad():
     # get the embeddings for the validation set
     val_embeddings = []
     val_labels = []
-    for data, target, features in val_loader_singles:
+    for data, target, features in test_loader_singles:
       # get data embeddings from siaemse network
       data, target = data.to(device), target.to(device)
       output = model.forward_once(data)
@@ -290,6 +295,4 @@ def train_siamese_with_features(model, device, train_loader_pairs, val_loader_pa
         correct += 1
       total += 1
 
-  acc = correct/total
-
-  return train_loss, validation_loss, acc
+  return correct/total
