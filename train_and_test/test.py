@@ -66,6 +66,10 @@ def test_siamese_with_features(model, device, test_loader_singles, class_samples
       # get data embeddings from siaemse network
       data, target, features = data.to(device), target.to(device), features.to(device)
       output = model.forward_once(data)
+      # Normalize the embeddings
+      output = (output - output.min()) / (output.max() - output.min())
+      # Normalize the features
+      features = (features - features.min()) / (features.max() - features.min())
       # append features to the output
       output = torch.cat((output, features), dim=1)
       # append to the list
@@ -81,6 +85,10 @@ def test_siamese_with_features(model, device, test_loader_singles, class_samples
       data, target, features = data.to(device), target.to(device), features.to(device)
       output = model.forward_once(data)
       output = torch.cat((output, features), dim=1)
+      # Normalize the embeddings
+      output = (output - output.min()) / (output.max() - output.min())
+      # Normalize the features
+      features = (features - features.min()) / (features.max() - features.min())
       class_samples_embeddings.append(output)
       class_samples_labels.append(target)
     class_samples_embeddings = torch.cat(class_samples_embeddings)
