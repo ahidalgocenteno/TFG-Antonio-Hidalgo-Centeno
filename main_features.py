@@ -72,8 +72,9 @@ if __name__ == '__main__':
     results = collections.defaultdict(dict)
 
     # test kNN with features
-    class_sample_loader = loaders_parciales[1]
-    test_accuracy = test_kNN_features(test_loader, class_sample_loader)
+    class_sample_dataset = DatasetWithFeatures(datasets_parciales[1], transforms.Compose([transforms.ToTensor(),]))
+    class_sample_loader = torch.utils.data.DataLoader(class_sample_dataset, batch_size=25, shuffle=True, num_workers=0)
+    test_accuracy = test_kNN_features(test_loader_features, class_sample_loader)
     results['kNN'] = test_accuracy
 
     # save results
