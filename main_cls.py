@@ -16,6 +16,11 @@ from utils.helper_utils import plot_loss_accuracy
 
 from utils.seed import seed_everything
 
+# PARAMETERS
+BATCH_SIZE = 25
+EPOCHS = 100
+DATA_PER_CLASS = [1]
+
 if __name__ == '__main__':
   # Seed
   seed_everything(42, benchmark=False)
@@ -43,7 +48,7 @@ if __name__ == '__main__':
   test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=25, shuffle=True, num_workers=0)
 
   # datos parciales
-  data_per_class = [1]
+  data_per_class = DATA_PER_CLASS
   datasets_parciales = {}
   loaders_parciales = {}
 
@@ -60,7 +65,7 @@ if __name__ == '__main__':
         # Get datasets from directories with ImageFolder
         train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
         # Get loaders
-        train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+        train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
       
       # Save dataset in dict
       datasets_parciales[n_per_class] = train_parcial_dataset
@@ -78,7 +83,7 @@ print('Training and Testing CNN')
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, EPOCHS)
   plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=os.path.join(plots_dir, f'cnn_{n_class}.png'))
 
   test_accuracy = test(net, device, test_loader)
@@ -92,7 +97,7 @@ print('Training and Testing  CRNN')
 for n_class,parcial_loader in loaders_parciales.items():
   print(f'Training for {n_class} data per class.')
   net = recurrent_convolutional_net().to(device)
-  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, 100)
+  train_loss, train_acc, validation_loss, validation_acc = train(net, device, loaders_parciales[n_class],val_loader, EPOCHS)
   plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=os.path.join(plots_dir, f'crnn_{n_class}.png'))
 
   test_accuracy = test(net, device, test_loader)
