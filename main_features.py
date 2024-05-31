@@ -11,6 +11,11 @@ from train_and_test.train import set_device
 from train_and_test.test import test_kNN_features
 from networks.mlp_net import mlp_net
 
+# PARAMETERS
+BATCH_SIZE = 25
+EPOCHS = 100
+DATA_PER_CLASS = [1]
+
 if __name__ == '__main__':
     # Seed
     seed_everything(42, benchmark=False)
@@ -29,19 +34,19 @@ if __name__ == '__main__':
     val_dir = folder_names[2]
 
     train_dataset = datasets.ImageFolder(train_dir,transforms.Compose([transforms.ToTensor(),]))
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=25, shuffle=True, num_workers=0)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=25, shuffle=True, num_workers=0)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=25, shuffle=True, num_workers=0)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
-    test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=25, shuffle=True, num_workers=0)
+    test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     # datos parciales
-    data_per_class =  [80, 50, 10, 5, 1]
+    data_per_class =  DATA_PER_CLASS
     datasets_parciales = {}
     loaders_parciales = {}
 
@@ -58,7 +63,7 @@ if __name__ == '__main__':
             # Get datasets from directories with ImageFolder
             train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
             # Get loaders
-            train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=25, shuffle=True, num_workers=0)
+            train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
         
         # Save dataset in dict
         datasets_parciales[n_per_class] = train_parcial_dataset
@@ -73,7 +78,7 @@ if __name__ == '__main__':
 
     # test kNN with features
     class_sample_dataset = DatasetWithFeatures(datasets_parciales[1], transforms.Compose([transforms.ToTensor(),]))
-    class_sample_loader = torch.utils.data.DataLoader(class_sample_dataset, batch_size=25, shuffle=True, num_workers=0)
+    class_sample_loader = torch.utils.data.DataLoader(class_sample_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
     test_accuracy = test_kNN_features(test_loader_features, class_sample_loader)
     results['kNN'] = test_accuracy
 

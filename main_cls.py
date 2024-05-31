@@ -5,12 +5,11 @@ import json
 import collections
 import os
 
+from networks.convolutional_net import convolutional_net
+from networks.recurrent_convolutional_net import recurrent_convolutional_net
 from utils.data_utils import load_datos_parciales
 from train_and_test.train import train, set_device
 from train_and_test.test import test
-
-from networks.convolutional_net import convolutional_net
-from networks.recurrent_convolutional_net import recurrent_convolutional_net
 
 from utils.helper_utils import plot_loss_accuracy
 
