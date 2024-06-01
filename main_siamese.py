@@ -1,17 +1,13 @@
 import torch
 from torchvision import datasets, transforms, utils
-
 import json
 import collections
 import os
-
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDataset, DatasetWithFeatures, load_datos_parciales
 from train_and_test.train import train_siamese_network, set_device
 from train_and_test.test import test_siamese_network, test_siamese_with_features
-
 from utils.helper_utils import plot_loss
-
 from utils.seed import seed_everything
 
 # PARAMETERS

@@ -1,10 +1,8 @@
 import torch
 from torchvision import datasets, transforms, utils
-
 import json
 import collections
 import os
-
 from utils.data_utils import DatasetWithFeatures, load_datos_parciales
 from utils.seed import seed_everything
 from train_and_test.train import set_device
