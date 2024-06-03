@@ -14,6 +14,8 @@ from utils.seed import seed_everything
 BATCH_SIZE = 25
 EPOCHS = 10
 DATA_PER_CLASS = [1]
+RATIO = 0.25
+MAX_RATIO = False
 
 if __name__ == '__main__':
     # Seed
@@ -78,7 +80,7 @@ if __name__ == '__main__':
 
     # val siamese dataset
     print('Siamese Validation Data:')
-    siamese_val_dataset = SiameseNetworkDataset(val_dataset,transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+    siamese_val_dataset = SiameseNetworkDataset(val_dataset,transforms.Compose([transforms.ToTensor(),]), ratio=RATIO, maximize_ratio=MAX_RATIO)
     siamese_val_loader = torch.utils.data.DataLoader(siamese_val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
     print('\n')
     # test class samples
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     # recorre los diferentes casos de data por clase
     for n_per_class in data_per_class:
         print(f'Data for {n_per_class} images per class:')
-        siamese_parcial_datasets[n_per_class] = SiameseNetworkDataset(datasets_parciales[n_per_class],transforms.Compose([transforms.ToTensor(),]),ratio=ratio)
+        siamese_parcial_datasets[n_per_class] = SiameseNetworkDataset(datasets_parciales[n_per_class],transforms.Compose([transforms.ToTensor(),]),ratio=RATIO, maximize_ratio=MAX_RATIO)
         siamese_parcial_loaders[n_per_class] = torch.utils.data.DataLoader(siamese_parcial_datasets[n_per_class], batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
         print('\n')
 
