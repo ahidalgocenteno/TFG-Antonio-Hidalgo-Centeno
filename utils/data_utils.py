@@ -67,14 +67,14 @@ class SiameseNetworkDataset(torch.utils.data.Dataset):
           raise ValueError("Error: Not possible to perform combinations of same class pairs with only one sample per classs.")
 
         # Generate pairs
-        for genre_pair in product(genres_labels,repeat=2):
+        for genre in genres_labels:
+            genre_images = genre_images_dict[genre]
+            same_genre_pairs.extend(list(product(genre_images, genre_images)))
+
+        for genre_pair in combinations(genres_labels, 2):
             genre1_images = genre_images_dict[genre_pair[0]]
             genre2_images = genre_images_dict[genre_pair[1]]
-            # separate diff genre and same genre combinations
-            if genre_pair[0] == genre_pair[1]:
-              same_genre_pairs.extend(list(product(genre1_images, genre2_images)))
-            else:
-               diff_genre_pairs.extend(list(product(genre1_images, genre2_images)))
+            diff_genre_pairs.extend(list(product(genre1_images, genre2_images)))
 
         # max ratio to calculate proportion
         max_ratio =  len(same_genre_pairs) / (len(same_genre_pairs) + len(diff_genre_pairs))
