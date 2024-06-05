@@ -43,7 +43,7 @@
 
 <h3>Descargar Datos</h3>
 
-Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo los descriptores de audio, y realiza el split train, test, val. 
+Se facilita un script para la descarga de los datos, 'download_data.py' que guarda en el directorio actual los datos de GTZAN, incluyendo audios, espectogramas y descriptores de audio. Adeás, realiza el split train, test y val. 
 
 <pre> python download_data.py</pre>
 
@@ -61,6 +61,6 @@ Para entrenar las redes neuronales siamesas y obtener su precisión, se facilita
 
 <h3>Redes neuronales siamesas con descriptores de audio</h3>
 
-Finalmente, se puede emplear el script 'main_siamese.py' para entrenar las arquitecturas que cuentan también con la entrada de los descriptores de audio, de la base de datos de GTZAN.
+Finalmente, se puede emplear el script 'main_features.py' para entrenar y evaluar las arquitecturas que cuentan también con la entrada de los descriptores de audio, de la base de datos de GTZAN.
 
-<pre>python main_siamese_features.py</pre>
+<pre>python main_features.py</pre>
