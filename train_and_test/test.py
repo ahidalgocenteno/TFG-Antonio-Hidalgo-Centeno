@@ -16,7 +16,7 @@ def test(model, device, test_loader):
   return correct/total
 
 # test
-def test_siamese_network(model, device, train_loader_singles, test_loader_singles):
+def test_knn_siamese_network(model, device, train_loader_singles, test_loader_singles):
   # get the accuracy of the siamese with kNN classifier
   model.eval()
   with torch.no_grad():

@@ -6,7 +6,7 @@ import os
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDataset, DatasetWithFeatures, load_datos_parciales
 from train_and_test.train import train_siamese_network, set_device
-from train_and_test.test import test_siamese_network
+from train_and_test.test import test_knn_siamese_network
 from utils.helper_utils import plot_loss
 from utils.seed import seed_everything
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
-        test_accuracy = test_siamese_network(net, device, train_loader, test_loader)
+        test_accuracy = test_knn_siamese_network(net, device, train_loader, test_loader)
         results['SCNN'][n_class] = test_accuracy
     
     # save results
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
-        test_accuracy = test_siamese_network(net, device, train_loader, test_loader)
+        test_accuracy = test_knn_siamese_network(net, device, train_loader, test_loader)
         results['SCRNN'][n_class] = test_accuracy
 
     
