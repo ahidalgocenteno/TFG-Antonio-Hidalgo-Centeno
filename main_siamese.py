@@ -109,13 +109,10 @@ if __name__ == '__main__':
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCNN'][n_class] = test_accuracy
-        results['SCNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
     
     # save results
     with open(os.path.join(results_dir, 'scnn_results.json'), 'w') as f:
         json.dump(results['SCNN'], f, indent=1)
-    with open(os.path.join(results_dir, 'scnn_features_results.json'), 'w') as f:
-        json.dump(results['SCNN_features'], f, indent=1)
 
     # SCRNN
     print('Training and Testing SCRNN')
@@ -126,13 +123,10 @@ if __name__ == '__main__':
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
         test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
         results['SCRNN'][n_class] = test_accuracy
-        results['SCRNN_features'][n_class] = test_siamese_with_features(net, device, test_loader_features, test_class_samples_loader)
 
     
     # save results
     with open(os.path.join(results_dir, 'scrnn_results.json'), 'w') as f:
         json.dump(results['SCRNN'], f, indent=1)
-    with open(os.path.join(results_dir, 'scrnn_features_results.json'), 'w') as f:
-        json.dump(results['SCRNN_features'], f, indent=1)
 
     print(results)

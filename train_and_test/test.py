@@ -56,59 +56,6 @@ def test_siamese_network(model, device, test_loader_singles, class_samples_loade
 
   return correct/total
 
-def test_siamese_with_features(model, device, test_loader_singles, class_samples_loader):
-  model.eval()
-  with torch.no_grad():
-    # get the embeddings for the validation set
-    test_embeddings = []
-    test_labels = []
-    for data, target, features in test_loader_singles:
-      # get data embeddings from siaemse network
-      data, target, features = data.to(device), target.to(device), features.to(device)
-      output = model.forward_once(data)
-      # Normalize the embeddings
-      output = (output - output.min()) / (output.max() - output.min())
-      # Normalize the features
-      features = (features - features.min()) / (features.max() - features.min())
-      # append features to the output
-      output = torch.cat((output, features), dim=1)
-      # append to the list
-      test_embeddings.append(output)
-      test_labels.append(target)
-    test_embeddings = torch.cat(test_embeddings)
-    test_labels = torch.cat(test_labels)
-
-    # get the embeddings for the class samples
-    class_samples_embeddings = []
-    class_samples_labels = []
-    for data, target, features in class_samples_loader:
-      data, target, features = data.to(device), target.to(device), features.to(device)
-      output = model.forward_once(data)
-      output = torch.cat((output, features), dim=1)
-      # Normalize the embeddings
-      output = (output - output.min()) / (output.max() - output.min())
-      # Normalize the features
-      features = (features - features.min()) / (features.max() - features.min())
-      class_samples_embeddings.append(output)
-      class_samples_labels.append(target)
-    class_samples_embeddings = torch.cat(class_samples_embeddings)
-    class_samples_labels = torch.cat(class_samples_labels)
-
-    # get the accuracy
-    correct = 0
-    total = 0
-    for i in range(len(test_embeddings)):
-      # Repeat val_embeddings[i] to match the shape of class_samples_embeddings
-      val_embedding_repeated = test_embeddings[i].repeat(class_samples_embeddings.shape[0], 1)
-      # Compute the distances using pairwise_distance
-      distances = F.pairwise_distance(val_embedding_repeated, class_samples_embeddings)
-      _, predicted = torch.min(distances, 0)
-      if class_samples_labels[predicted] == test_labels[i]:
-        correct += 1
-      total += 1
-
-  return correct/total
-
 # test only features
 def test_kNN_features(test_loader_features, class_samples_loader):
   # get the accuracy of the siamese with kNN classifier
