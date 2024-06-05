@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
-
+from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
 
 def test(model, device, test_loader):
   model.eval()
@@ -15,52 +16,76 @@ def test(model, device, test_loader):
   return correct/total
 
 # test
-def test_siamese_network(model, device, test_loader_singles, class_samples_loader):
+def test_siamese_network(model, device, train_loader_singles, test_loader_singles):
   # get the accuracy of the siamese with kNN classifier
   model.eval()
   with torch.no_grad():
-    # get the embeddings for the validation set
-    val_embeddings = []
-    val_labels = []
+    # get the embeddings for the test set
+    test_embeddings = [] 
+    test_embeddings = []
+    test_labels = []
     for data, target in test_loader_singles:
       data, target = data.to(device), target.to(device)
       output = model.forward_once(data)
-      val_embeddings.append(output)
-      val_labels.append(target)
-    val_embeddings = torch.cat(val_embeddings)
-    val_labels = torch.cat(val_labels)
+      test_embeddings.append(output)
+      test_labels.append(target)
+    test_embeddings = torch.cat(test_embeddings)
+    test_labels = torch.cat(test_labels)
+    # to cpu
+    test_embeddings = test_embeddings.cpu()
+    test_labels = test_labels.cpu()
+    # convert to numpy
+    test_embeddings = test_embeddings.numpy()
+    test_labels = test_labels.numpy()
 
-    # get the embeddings for the class samples
-    class_samples_embeddings = []
-    class_samples_labels = []
-    for data, target in class_samples_loader:
+    # get the embeddings for the train set
+    train_embeddings = []
+    train_labels = []
+    for data, target in train_loader_singles:
       data, target = data.to(device), target.to(device)
       output = model.forward_once(data)
-      class_samples_embeddings.append(output)
-      class_samples_labels.append(target)
-    class_samples_embeddings = torch.cat(class_samples_embeddings)
-    class_samples_labels = torch.cat(class_samples_labels)
+      train_embeddings.append(output)
+      train_labels.append(target)
+    train_embeddings = torch.cat(train_embeddings)
+    train_labels = torch.cat(train_labels)
+    # to cpu
+    train_embeddings = train_embeddings.cpu()
+    train_labels = train_labels.cpu()     
+    # convert to numpy
+    train_embeddings = train_embeddings.numpy()
+    train_labels = train_labels.numpy()
 
-    # get the accuracy
-    correct = 0
-    total = 0
-    for i in range(len(val_embeddings)):
-      # Repeat val_embeddings[i] to match the shape of class_samples_embeddings
-      val_embedding_repeated = val_embeddings[i].repeat(class_samples_embeddings.shape[0], 1)
-      # Compute the distances using pairwise_distance
-      distances = F.pairwise_distance(val_embedding_repeated, class_samples_embeddings)
-      _, predicted = torch.min(distances, 0)
-      if class_samples_labels[predicted] == val_labels[i]:
-        correct += 1
-      total += 1
+    n_neighbors = 1
+    # Train kNN classifier
+    knn = KNeighborsClassifier(n_neighbors=n_neighbors)
+    knn.fit(train_embeddings, train_labels)
 
-  return correct/total
+    # Predict the class labels for the test set using kNN
+    predicted_labels = knn.predict(test_embeddings)
+    # Calculate accuracy
+    accuracy = np.mean(predicted_labels == test_labels)
+    print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+  return accuracy
 
 # test only features
-def test_kNN_features(test_loader_features, class_samples_loader):
+def test_kNN_features(train_loader_features, test_loader_features):
   # get the accuracy of the siamese with kNN classifier
   with torch.no_grad():
-    # get the embeddings for the validation set
+    
+    # get the embeddings for the train set
+    train_embeddings = []
+    train_labels = []
+    for data, target, features in train_loader_features:
+      train_embeddings.append(features)
+      train_labels.append(target)
+    train_embeddings = torch.cat(train_embeddings)
+    train_labels = torch.cat(train_labels)
+    # convert to numpy
+    train_embeddings = train_embeddings.numpy()
+    train_labels = train_labels.numpy()
+    
+    # get the embeddings for the test set
     test_embeddings = []
     test_labels = []
     for data, target, features in test_loader_features:
@@ -68,27 +93,19 @@ def test_kNN_features(test_loader_features, class_samples_loader):
       test_labels.append(target)
     test_embeddings = torch.cat(test_embeddings)
     test_labels = torch.cat(test_labels)
+    # convert to numpy
+    test_embeddings = test_embeddings.numpy()
+    test_labels = test_labels.numpy()
 
-    # get the embeddings for the class samples
-    class_samples_embeddings = []
-    class_samples_labels = []
-    for data, target, features in class_samples_loader:
-      class_samples_embeddings.append(features)
-      class_samples_labels.append(target)
-    class_samples_embeddings = torch.cat(class_samples_embeddings)
-    class_samples_labels = torch.cat(class_samples_labels)
+    n_neighbors = 1
+    # Train kNN classifier
+    knn = KNeighborsClassifier(n_neighbors=n_neighbors)
+    knn.fit(train_embeddings, train_labels)
 
-    # get the accuracy
-    correct = 0
-    total = 0
-    for i in range(len(test_embeddings)):
-      # Repeat val_embeddings[i] to match the shape of class_samples_embeddings
-      val_embedding_repeated = test_embeddings[i].repeat(class_samples_embeddings.shape[0], 1)
-      # Compute the distances using pairwise_distance
-      distances = F.pairwise_distance(val_embedding_repeated, class_samples_embeddings)
-      _, predicted = torch.min(distances, 0)
-      if class_samples_labels[predicted] == test_labels[i]:
-        correct += 1
-      total += 1
+    # Predict the class labels for the test set using kNN
+    predicted_labels = knn.predict(test_embeddings)
+    # Calculate accuracy
+    accuracy = np.mean(predicted_labels == test_labels)
+    print(f'Test Accuracy: {accuracy * 100:.2f}%')
 
-  return correct/total
+  return accuracy

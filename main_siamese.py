@@ -6,7 +6,7 @@ import os
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDataset, DatasetWithFeatures, load_datos_parciales
 from train_and_test.train import train_siamese_network, set_device
-from train_and_test.test import test_siamese_network, test_siamese_with_features
+from train_and_test.test import test_siamese_network
 from utils.helper_utils import plot_loss
 from utils.seed import seed_everything
 
@@ -43,6 +43,8 @@ if __name__ == '__main__':
     test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
+    train_dataset_features = DatasetWithFeatures(train_dataset,transforms.Compose([transforms.ToTensor(),]))
+    train_loader_features = torch.utils.data.DataLoader(train_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
     test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
     test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
@@ -107,7 +109,7 @@ if __name__ == '__main__':
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
-        test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
+        test_accuracy = test_siamese_network(net, device, train_loader, test_loader)
         results['SCNN'][n_class] = test_accuracy
     
     # save results
@@ -121,7 +123,7 @@ if __name__ == '__main__':
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
-        test_accuracy = test_siamese_network(net, device, test_loader, loaders_parciales[1])
+        test_accuracy = test_siamese_network(net, device, train_loader, test_loader)
         results['SCRNN'][n_class] = test_accuracy
 
     

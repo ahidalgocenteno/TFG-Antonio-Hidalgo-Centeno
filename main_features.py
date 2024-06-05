@@ -12,7 +12,7 @@ from networks.mlp_net import mlp_net
 # PARAMETERS
 BATCH_SIZE = 25
 EPOCHS = 100
-DATA_PER_CLASS = [1]
+DATA_PER_CLASS = [1, 5 , 10, 50, 80]
 
 if __name__ == '__main__':
     # Seed
@@ -40,6 +40,8 @@ if __name__ == '__main__':
     test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
+    train_dataset_features = DatasetWithFeatures(train_dataset,transforms.Compose([transforms.ToTensor(),]))
+    train_loader_features = torch.utils.data.DataLoader(train_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
     test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
     test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     # test kNN with features
     class_sample_dataset = DatasetWithFeatures(datasets_parciales[1], transforms.Compose([transforms.ToTensor(),]))
     class_sample_loader = torch.utils.data.DataLoader(class_sample_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-    test_accuracy = test_kNN_features(test_loader_features, class_sample_loader)
+    test_accuracy = test_kNN_features(train_loader_features, test_loader_features)
     results['kNN'] = test_accuracy
 
     # save results
