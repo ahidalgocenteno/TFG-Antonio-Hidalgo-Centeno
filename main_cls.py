@@ -14,7 +14,7 @@ from utils.seed import seed_everything
 # PARAMETERS
 BATCH_SIZE = 25
 EPOCHS = 100
-DATA_PER_CLASS = [1]
+DATA_PER_CLASS = [1, 5 , 10, 50, 80]
 
 if __name__ == '__main__':
   # Seed
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
   spectrograms_dir = "Data/images_original/"
   folder_names = ['Data/train/', 'Data/test/', 'Data/val/']
-  train_dir = folder_names[0]
+  train_dir = folder_names[0]  
   test_dir = folder_names[1]
   val_dir = folder_names[2]
 
