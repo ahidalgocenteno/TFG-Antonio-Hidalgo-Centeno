@@ -32,11 +32,8 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
     test_embeddings = torch.cat(test_embeddings)
     test_labels = torch.cat(test_labels)
     # to cpu
-    test_embeddings = test_embeddings.cpu()
-    test_labels = test_labels.cpu()
-    # convert to numpy
-    test_embeddings = test_embeddings.numpy()
-    test_labels = test_labels.numpy()
+    test_embeddings = test_embeddings.cpu().numpy()
+    test_labels = test_labels.cpu().numpy()
 
     # get the embeddings for the train set
     train_embeddings = []
@@ -48,12 +45,9 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
       train_labels.append(target)
     train_embeddings = torch.cat(train_embeddings)
     train_labels = torch.cat(train_labels)
-    # to cpu
-    train_embeddings = train_embeddings.cpu()
-    train_labels = train_labels.cpu()     
-    # convert to numpy
-    train_embeddings = train_embeddings.numpy()
-    train_labels = train_labels.numpy()
+    # to cpu and convert to numpy
+    train_embeddings = train_embeddings.cpu().numpy()
+    train_labels = train_labels.cpu().numpy()     
 
     n_neighbors = 1
     # Train kNN classifier
