@@ -33,55 +33,38 @@ if __name__ == '__main__':
 
     train_dataset = datasets.ImageFolder(train_dir,transforms.Compose([transforms.ToTensor(),]))
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-
-    val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-
     test_dataset = datasets.ImageFolder(test_dir,transforms.Compose([transforms.ToTensor(),]))
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     train_dataset_features = DatasetWithFeatures(train_dataset,transforms.Compose([transforms.ToTensor(),]))
-    train_loader_features = torch.utils.data.DataLoader(train_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
     test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
     test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
-    # datos parciales
-    data_per_class =  DATA_PER_CLASS
-    datasets_parciales = {}
-    loaders_parciales = {}
+    # datos parciales con features
+    data_per_class = DATA_PER_CLASS
+    train_features_datasets_parciales = {}
+    train_features_loaders_parciales = {}
 
-    print('Complete data:', len(train_dataset), 'train samples,', len(val_dataset), 'validation samples')
-
-    # Loop through different cases of data per class
+    print('Complete data:', len(train_dataset_features), 'train samples,', len(test_dataset_features), 'validation samples')
     for n_per_class in data_per_class:
         if n_per_class == 80:
             train_parcial_dataset = train_dataset
-            train_parcial_loader = train_loader
+            train_features_parcial_loader = train_loader
         else:
             # call loader for n per class
-            train_parcial_dir = load_datos_parciales(n_per_class, train_dir)         
-            # Get datasets from directories with ImageFolder
-            train_parcial_dataset = datasets.ImageFolder(train_parcial_dir, transforms.Compose([transforms.ToTensor()]))
-            # Get loaders
-            train_parcial_loader = torch.utils.data.DataLoader(train_parcial_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-        
-        # Save dataset in dict
-        datasets_parciales[n_per_class] = train_parcial_dataset
-        # Save loader in dict
-        loaders_parciales[n_per_class] = train_parcial_loader
+            train_parcial_dir = load_datos_parciales(n_per_class, train_dir)
+            train_parcial_dataset = datasets.ImageFolder(train_parcial_dir,transforms.Compose([transforms.ToTensor(),]))
+        train_features_datasets_parcial = DatasetWithFeatures(train_parcial_dataset,transforms.Compose([transforms.ToTensor(),]))
+        train_features_loaders_parciales[n_per_class] = torch.utils.data.DataLoader(train_features_datasets_parcial, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+    
 
-        print('Partial data for', n_per_class, 'samples per class:', len(train_parcial_dataset), 'train samples,', len(val_dataset), 'validation samples')
-  
-    # device
-    device = set_device()
     results = collections.defaultdict(dict)
 
-    # test kNN with features
-    class_sample_dataset = DatasetWithFeatures(datasets_parciales[1], transforms.Compose([transforms.ToTensor(),]))
-    class_sample_loader = torch.utils.data.DataLoader(class_sample_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-    test_accuracy = test_kNN_features(train_loader_features, test_loader_features)
-    results['kNN'] = test_accuracy
+    # kNN
+    for n_per_class,train_features_parcial_loader in train_features_loaders_parciales.items():
+        print('Partial data for', n_per_class, 'samples per class:', len(train_features_parcial_loader.dataset), 'train samples')
+        accuracy = test_kNN_features(train_features_parcial_loader, test_loader_features)
+        results['kNN'][n_per_class] = accuracy
 
-    # save results
-    with open(os.path.join(results_dir, 'features_results.json'), 'w') as f:
-        json.dump(results, f, indent=1)
+    # Save results
+    with open(results_dir + 'knn_features_results.json', 'w') as f:
+        json.dump(results['kNN'], f, indent=2)
