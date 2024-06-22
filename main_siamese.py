@@ -6,7 +6,7 @@ import os
 from networks.siamese_net import siamese_recurrent_net, siamese_convolutional_net
 from utils.data_utils import SiameseNetworkDataset, DatasetWithFeatures, load_datos_parciales
 from train_and_test.train import train_siamese_network, set_device
-from train_and_test.test import test_knn_siamese_network
+from train_and_test.test import test_knn_siamese_network, test_svm_siamese_network
 from utils.helper_utils import plot_loss
 from utils.seed import seed_everything
 
@@ -93,12 +93,17 @@ if __name__ == '__main__':
         net = siamese_convolutional_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
-        test_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
-        results['SCNN'][n_class] = test_accuracy
+        test_knn_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
+        test_svm_accuracy = test_svm_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
+        results['SCNN_knn'][n_class] = test_knn_accuracy
+        results['SCNN_svm'][n_class] = test_svm_accuracy
     
     # save results
-    with open(os.path.join(results_dir, 'scnn_results.json'), 'w') as f:
-        json.dump(results['SCNN'], f, indent=1)
+    with open(os.path.join(results_dir, 'scnn_knn_results.json'), 'w') as f:
+        json.dump(results['SCNN_knn'], f, indent=1)
+    with open(os.path.join(results_dir, 'scnn_svm_results.json'), 'w') as f:
+        json.dump(results['SCNN_svm'], f, indent=1)
+
 
     # SCRNN
     print('Training and Testing SCRNN')
@@ -107,12 +112,14 @@ if __name__ == '__main__':
         net = siamese_recurrent_net().to(device)
         train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
-        test_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
-        results['SCRNN'][n_class] = test_accuracy
-
-    
+        test_knn_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
+        test_svm_accuracy = test_svm_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
+        results['SCRNN_knn'][n_class] = test_knn_accuracy
+        results['SCRNN_svm'][n_class] = test_svm_accuracy
+        
     # save results
-    with open(os.path.join(results_dir, 'scrnn_results.json'), 'w') as f:
-        json.dump(results['SCRNN'], f, indent=1)
-
+    with open(os.path.join(results_dir, 'scrnn_knn_results.json'), 'w') as f:
+        json.dump(results['SCRNN_knn'], f, indent=1)
+    with open(os.path.join(results_dir, 'scrnn_svm_results.json'), 'w') as f:
+        json.dump(results['SCRNN_svm'], f, indent=1)
     print(results)

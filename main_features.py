@@ -6,9 +6,10 @@ import os
 from utils.data_utils import DatasetWithFeatures, load_datos_parciales
 from utils.seed import seed_everything
 from train_and_test.train import set_device, train_features
-from train_and_test.test import test_kNN_features, test_features
+from train_and_test.test import test_kNN_features, test_features, test_svm_features
 from networks.mlp_net import mlp_net
 from utils.helper_utils import plot_loss_accuracy
+from sklearn.preprocessing import StandardScaler
 
 # PARAMETERS
 BATCH_SIZE = 25
@@ -37,11 +38,12 @@ if __name__ == '__main__':
     val_dataset = datasets.ImageFolder(val_dir,transforms.Compose([transforms.ToTensor(),]))
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-    train_dataset_features = DatasetWithFeatures(train_dataset,transforms.Compose([transforms.ToTensor(),]))
+    train_dataset_features = DatasetWithFeatures(imageFolderDataset=train_dataset,transform=transforms.Compose([transforms.ToTensor(),]))
+    scaler = train_dataset_features.get_scaler()
 
-    test_dataset_features = DatasetWithFeatures(test_dataset,transforms.Compose([transforms.ToTensor(),]))
+    test_dataset_features = DatasetWithFeatures(imageFolderDataset=test_dataset,transform=transforms.Compose([transforms.ToTensor(),]), standard_scaler=scaler)
     test_loader_features = torch.utils.data.DataLoader(test_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-    val_dataset_features = DatasetWithFeatures(val_dataset,transforms.Compose([transforms.ToTensor(),]))
+    val_dataset_features = DatasetWithFeatures(imageFolderDataset=val_dataset,transform=transforms.Compose([transforms.ToTensor(),]), standard_scaler=scaler)
     val_loader_features = torch.utils.data.DataLoader(val_dataset_features, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
     # datos parciales con features
@@ -64,6 +66,7 @@ if __name__ == '__main__':
     results = collections.defaultdict(dict)
 
     # kNN
+    print('#########################\n# Testing kNN\n#########################')
     for n_class,train_features_parcial_loader in train_features_loaders_parciales.items():
         print('Partial data for', n_class, 'samples per class:', len(train_features_parcial_loader.dataset), 'train samples')
         accuracy = test_kNN_features(train_features_parcial_loader, test_loader_features)
@@ -73,12 +76,21 @@ if __name__ == '__main__':
     with open(results_dir + 'knn_features_results.json', 'w') as f:
         json.dump(results['kNN'], f, indent=2)
 
-    # MLP
-    net = mlp_net()
-    device = set_device()
-    net.to(device)
-
+    # SVM
+    print('#########################\n# Testing SVM\n#########################')
     for n_class,train_features_parcial_loader in train_features_loaders_parciales.items():
+        print('Partial data for', n_class, 'samples per class:', len(train_features_parcial_loader.dataset), 'train samples')
+        accuracy = test_svm_features(train_features_parcial_loader, test_loader_features)
+        results['SVM'][n_class] = accuracy
+
+    with open(results_dir + 'svm_features_results.json', 'w') as f:
+        json.dump(results['SVM'], f, indent=2)
+
+    # MLP
+    print('#########################\n# Training MLP\n#########################')
+    device = set_device()
+    for n_class,train_features_parcial_loader in train_features_loaders_parciales.items():
+        net = mlp_net().to(device)
         print(f'Training for {n_class} data per class.')
         train_loss, train_acc, validation_loss, validation_acc = train_features(net, device, train_features_parcial_loader, val_loader_features, EPOCHS)
         plot_loss_accuracy(train_loss, train_acc, validation_loss, validation_acc, show=False, save=True, fname=os.path.join(plots_dir, f'mlp_{n_class}.png'))
