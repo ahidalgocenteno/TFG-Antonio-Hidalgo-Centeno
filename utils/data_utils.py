@@ -132,7 +132,8 @@ class DatasetWithFeatures(torch.utils.data.Dataset):
         img_dir = img_tuple[0]
         img_key = ''.join(os.path.basename(img_dir).split('.')[0]) + '.wav'
         img_key = '.'.join(img_key.split(img_key[-9:])) + img_key[-9:]
-        img_features = torch.from_numpy(np.array(self.features[img_key][:-1], dtype=np.float32))
+        img_features = self.features[img_key][:-1]
+        img_features =  torch.from_numpy(np.array(img_features, dtype=np.float32))
         img = Image.open(img_dir)
         img = img.convert("RGB")
         if self.transform is not None:

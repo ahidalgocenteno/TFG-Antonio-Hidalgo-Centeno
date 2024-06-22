@@ -2,18 +2,38 @@ import torch
 import torch.nn.functional as F
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
+# accuracy
+from sklearn.metrics import accuracy_score
 
 def test(model, device, test_loader):
   model.eval()
-  correct, total = 0, 0
+  y_true, y_pred = [], []
+
   with torch.no_grad():
     for data, target in test_loader:
       data, target = data.to(device), target.to(device)
       output = model(data)
       _, predicted = torch.max(output, 1)
-      total += target.size(0)
-      correct += (predicted == target).sum().item()
-  return correct/total
+      y_true.extend(target.cpu().numpy())
+      y_pred.extend(predicted.cpu().numpy())
+
+  acc = accuracy_score(y_true, y_pred)
+  return acc
+
+def test_features(model, device, test_loader):
+  model.eval()
+  y_true, y_pred = [], []
+
+  with torch.no_grad():
+    for data, target, features in test_loader:
+      data, target, features = data.to(device), target.to(device), features.to(device)
+      output = model(features)
+      _, predicted = torch.max(output, 1)
+      y_true.extend(target.cpu().numpy())
+      y_pred.extend(predicted.cpu().numpy())
+
+  acc = accuracy_score(y_true, y_pred)
+  return acc
 
 # test
 def test_knn_siamese_network(model, device, train_loader_singles, test_loader_singles):
@@ -57,7 +77,7 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
     # Predict the class labels for the test set using kNN
     predicted_labels = knn.predict(test_embeddings)
     # Calculate accuracy
-    accuracy = np.mean(predicted_labels == test_labels)
+    accuracy = accuracy_score(test_labels, predicted_labels)
     print(f'Test Accuracy: {accuracy * 100:.2f}%')
 
   return accuracy
@@ -99,7 +119,7 @@ def test_kNN_features(train_loader_features, test_loader_features):
     # Predict the class labels for the test set using kNN
     predicted_labels = knn.predict(test_embeddings)
     # Calculate accuracy
-    accuracy = np.mean(predicted_labels == test_labels)
+    accuracy = accuracy_score(test_labels, predicted_labels)
     print(f'Test Accuracy: {accuracy * 100:.2f}%')
 
   return accuracy
