@@ -8,6 +8,7 @@ import torch
 import numpy as np
 from PIL import Image
 import csv
+from sklearn.preprocessing import StandardScaler
 
 def load_datos_parciales(n_por_clase, path):
     train_folder_name = ['Data/datos_parciales_', str(n_por_clase)]
@@ -119,21 +120,41 @@ class SiameseNetworkDataset(torch.utils.data.Dataset):
         return len(self.pairs)
         
 class DatasetWithFeatures(torch.utils.data.Dataset):
-    def __init__(self, imageFolderDataset, transform=None, features_filename = "Data/features_30_sec.csv"):
+    def __init__(self, imageFolderDataset, transform=None, features_filename = "Data/features_30_sec.csv", standard_scaler = None):
         self.imageFolderDataset = imageFolderDataset
         self.transform = transform
         self.features_filename = features_filename
         with open(self.features_filename, mode='r') as f:
           reader = csv.reader(f)
           self.features = {rows[0]:rows[1:] for rows in reader}
-  
+        self.standard_scaler = standard_scaler
+        self.all_features = self._get__all_features()
+
+    def _get__all_features(self):
+        all_img_features = []
+
+        for img_tuples in self.imageFolderDataset.imgs:
+            img_key = ''.join(os.path.basename(img_tuples[0]).split('.')[0]) + '.wav'
+            img_key = '.'.join(img_key.split(img_key[-9:])) + img_key[-9:]
+            img_features = self.features[img_key][:-1]
+            all_img_features.append(img_features)
+
+        if self.standard_scaler is not None:
+            all_img_features = self.standard_scaler.transform(all_img_features)
+        else:
+            self.standard_scaler = StandardScaler()
+            all_img_features = self.standard_scaler.fit_transform(all_img_features)
+
+        # convert to tensor
+        all_img_features = torch.from_numpy(np.array(all_img_features, dtype=np.float32))
+        
+        return all_img_features
+      
     def __getitem__(self, index):
         img_tuple = self.imageFolderDataset.imgs[index]
         img_dir = img_tuple[0]
-        img_key = ''.join(os.path.basename(img_dir).split('.')[0]) + '.wav'
-        img_key = '.'.join(img_key.split(img_key[-9:])) + img_key[-9:]
-        img_features = self.features[img_key][:-1]
-        img_features =  torch.from_numpy(np.array(img_features, dtype=np.float32))
+        img_features = self.all_features[index]
+
         img = Image.open(img_dir)
         img = img.convert("RGB")
         if self.transform is not None:
@@ -141,6 +162,9 @@ class DatasetWithFeatures(torch.utils.data.Dataset):
         img_target = img_tuple[1]
         
         return img, img_features, img_target
+    
+    def get_scaler(self):
+        return self.standard_scaler
 
     def __len__(self):
         return len(self.imageFolderDataset.imgs)
