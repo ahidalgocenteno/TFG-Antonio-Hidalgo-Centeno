@@ -140,7 +140,7 @@ class DatasetWithFeatures(torch.utils.data.Dataset):
             img = self.transform(img)
         img_target = img_tuple[1]
         
-        return img, img_target, img_features
+        return img, img_features, img_target
 
     def __len__(self):
         return len(self.imageFolderDataset.imgs)

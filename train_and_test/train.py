@@ -27,7 +27,7 @@ def train_features(model, device, train_loader, validation_loader, epochs):
       running_loss = 0.
       correct, total = 0, 0
 
-      for _, target, features in train_loader:
+      for _, features, target  in train_loader:
         # getting the training set
         features, target = features.to(device), target.to(device)
         # Get the model output (call the model with the data from this batch)
@@ -58,7 +58,7 @@ def train_features(model, device, train_loader, validation_loader, epochs):
       running_loss = 0.
       correct, total = 0, 0
 
-      for _, target, features in validation_loader:
+      for _, features, target  in validation_loader:
         # getting the validation set
         features, target = features.to(device), target.to(device)
         optimizer.zero_grad()

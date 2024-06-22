@@ -1,6 +1,8 @@
 import torch
 import torch.nn.functional as F
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 # accuracy
 from sklearn.metrics import accuracy_score
@@ -25,11 +27,11 @@ def test_features(model, device, test_loader):
   y_true, y_pred = [], []
 
   with torch.no_grad():
-    for data, target, features in test_loader:
-      data, target, features = data.to(device), target.to(device), features.to(device)
+    for _, features, target in test_loader:
+      features = features.to(device)
       output = model(features)
       _, predicted = torch.max(output, 1)
-      y_true.extend(target.cpu().numpy())
+      y_true.extend(target)
       y_pred.extend(predicted.cpu().numpy())
 
   acc = accuracy_score(y_true, y_pred)
@@ -67,7 +69,7 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
     train_labels = torch.cat(train_labels)
     # to cpu and convert to numpy
     train_embeddings = train_embeddings.cpu().numpy()
-    train_labels = train_labels.cpu().numpy()     
+    train_labels = train_labels.cpu().numpy() 
 
     n_neighbors = 1
     # Train kNN classifier
@@ -90,7 +92,7 @@ def test_kNN_features(train_loader_features, test_loader_features):
     # get the embeddings for the train set
     train_embeddings = []
     train_labels = []
-    for data, target, features in train_loader_features:
+    for _, features, target in train_loader_features:
       train_embeddings.append(features)
       train_labels.append(target)
     train_embeddings = torch.cat(train_embeddings)
@@ -102,7 +104,7 @@ def test_kNN_features(train_loader_features, test_loader_features):
     # get the embeddings for the test set
     test_embeddings = []
     test_labels = []
-    for data, target, features in test_loader_features:
+    for _, features, target in test_loader_features:
       test_embeddings.append(features)
       test_labels.append(target)
     test_embeddings = torch.cat(test_embeddings)
