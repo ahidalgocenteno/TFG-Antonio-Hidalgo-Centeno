@@ -12,8 +12,6 @@ class siamese_convolutional_net(nn.Module):
     self.conv5 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=0)
     self.conv6 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=0)
     
-    self.fc1 = nn.Linear(in_features=2048, out_features=100)
-
     self.batchnorm1 = nn.BatchNorm2d(num_features=8)
     self.batchnorm2 = nn.BatchNorm2d(num_features=16)
     self.batchnorm3 = nn.BatchNorm2d(num_features=32)
@@ -62,11 +60,6 @@ class siamese_convolutional_net(nn.Module):
 
       # Flatten
       x = torch.flatten(x, 1)
-
-      # Fully connected layer 1.
-      x = torch.flatten(x, 1)
-      x = self.dropout(x)
-      x = self.fc1(x)
 
       return x
   
