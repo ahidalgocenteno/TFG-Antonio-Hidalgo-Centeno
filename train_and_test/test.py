@@ -39,7 +39,7 @@ def test_features(model, device, test_loader):
   acc = accuracy_score(y_true, y_pred)
 
   print(f'Test Accuracy MLP: {acc * 100:.2f}%')
-  
+
   return acc
 
 # test
@@ -86,7 +86,7 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
     # Calculate accuracy
     accuracy = accuracy_score(test_labels, predicted_labels)
 
-    print(f'Test Accuracy MLP: {accuracy * 100:.2f}%')
+    print(f'Test Accuracy kNN: {accuracy * 100:.2f}%')
 
   return accuracy
 
