@@ -19,6 +19,9 @@ def test(model, device, test_loader):
       y_pred.extend(predicted.cpu().numpy())
 
   acc = accuracy_score(y_true, y_pred)
+
+  print(f'Test Accuracy MLP: {acc * 100:.2f}%')
+
   return acc
 
 def test_features(model, device, test_loader):
@@ -34,6 +37,9 @@ def test_features(model, device, test_loader):
       y_pred.extend(predicted.cpu().numpy())
 
   acc = accuracy_score(y_true, y_pred)
+
+  print(f'Test Accuracy MLP: {acc * 100:.2f}%')
+  
   return acc
 
 # test
@@ -79,7 +85,8 @@ def test_knn_siamese_network(model, device, train_loader_singles, test_loader_si
     predicted_labels = knn.predict(test_embeddings)
     # Calculate accuracy
     accuracy = accuracy_score(test_labels, predicted_labels)
-    print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+    print(f'Test Accuracy MLP: {accuracy * 100:.2f}%')
 
   return accuracy
 
@@ -121,7 +128,8 @@ def test_kNN_features(train_loader_features, test_loader_features):
     predicted_labels = knn.predict(test_embeddings)
     # Calculate accuracy
     accuracy = accuracy_score(test_labels, predicted_labels)
-    print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+    print(f'Test Accuracy kNN: {accuracy * 100:.2f}%')
 
   return accuracy
 
@@ -162,7 +170,8 @@ def test_svm_features(train_loader_features, test_loader_features):
     predicted_labels = svm.predict(test_embeddings)
     # Calculate accuracy
     accuracy = accuracy_score(test_labels, predicted_labels)
-    print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+    print(f'Test Accuracy kNN: {accuracy * 100:.2f}%')
 
   return accuracy
 
@@ -207,6 +216,7 @@ def test_svm_siamese_network(model, device, train_loader_singles, test_loader_si
     predicted_labels = svm.predict(test_embeddings)
     # Calculate accuracy
     accuracy = accuracy_score(test_labels, predicted_labels)
-    print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+    print(f'Test Accuracy SVM: {accuracy * 100:.2f}%')
 
   return accuracy
