@@ -10,7 +10,6 @@ class recurrent_convolutional_net(nn.Module):
     self.conv4 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=0)
     self.conv5 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=0)
     self.conv6 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=0)
-    self.fc1 = nn.Linear(in_features=100, out_features=10)
 
     self.batchnorm1 = nn.BatchNorm2d(num_features=8)
     self.batchnorm2 = nn.BatchNorm2d(num_features=16)
@@ -23,6 +22,7 @@ class recurrent_convolutional_net(nn.Module):
 
     self.RNN = nn.LSTM(input_size = 512, hidden_size = 100, batch_first = True)
 
+    self.fc1 = nn.Linear(in_features=100, out_features=10)
 
   def forward(self, x):
     # Conv layer 1.
