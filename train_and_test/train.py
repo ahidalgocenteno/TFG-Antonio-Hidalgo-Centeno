@@ -155,9 +155,9 @@ class ContrastiveLoss(nn.Module):
 
       return loss_contrastive
 # Entrenamiento Siamesa
-def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, epochs):
+def train_siamese_network(model, device, train_loader_pairs,val_loader_pairs, epochs, lr):
   criterion =  ContrastiveLoss()
-  optimizer = torch.optim.Adam(model.parameters(), lr=0.0005) 
+  optimizer = torch.optim.Adam(model.parameters(), lr=lr) 
 
   train_loss, validation_loss = [], []
 
