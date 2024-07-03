@@ -47,7 +47,7 @@ Se facilita un script para la descarga de los datos, 'download_data.py' que guar
 
 <pre> python download_data.py</pre>
 
-<h3>Redes Neuronales para clasificación</h3>
+<h3>Redes Neuronales simples</h3>
 
 El script 'main_cls.py'. Carga los datos y entrena el modelo para diferentes datos por clase. Se entrenan los modelos de CNN y CRNN.
 
@@ -59,7 +59,7 @@ Para entrenar las redes neuronales siamesas y obtener su precisión, se facilita
 
 <pre>python main_siamese.py</pre>
 
-<h3>Clasificación con descriptores de audio</h3>
+<h3>Descriptores de audio</h3>
 
 Finalmente, se puede emplear el script 'main_features.py' para entrenar y evaluar las arquitecturas que cuentan también con la entrada de los descriptores de audio, de la base de datos de GTZAN.
 
