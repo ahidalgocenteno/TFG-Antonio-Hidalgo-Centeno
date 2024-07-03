@@ -59,7 +59,7 @@ Para entrenar las redes neuronales siamesas y obtener su precisión, se facilita
 
 <pre>python main_siamese.py</pre>
 
-<h3>Redes neuronales siamesas con descriptores de audio</h3>
+<h3>Clasificación con descriptores de audio</h3>
 
 Finalmente, se puede emplear el script 'main_features.py' para entrenar y evaluar las arquitecturas que cuentan también con la entrada de los descriptores de audio, de la base de datos de GTZAN.
 
