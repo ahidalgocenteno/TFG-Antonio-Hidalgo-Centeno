@@ -13,7 +13,8 @@ from utils.seed import seed_everything
 # PARAMETERS
 BATCH_SIZE = 25
 EPOCHS = 100
-DATA_PER_CLASS = [1, 5, 10]
+LEARNING_RATE = 0.0001
+DATA_PER_CLASS = [1, 5, 10, 50, 80]
 RATIO = 0.25
 MAX_RATIO = False
 
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_convolutional_net().to(device)
-        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
+        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS, LEARNING_RATE)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scnn_loss_{n_class}.png'))
         test_knn_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
         test_svm_accuracy = test_svm_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
@@ -110,7 +111,7 @@ if __name__ == '__main__':
     for n_class,siamese_parcial_loader in siamese_parcial_loaders.items():
         print(f'Training for {n_class} data per class.')
         net = siamese_recurrent_net().to(device)
-        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS)
+        train_loss, validation_loss = train_siamese_network(net, device, siamese_parcial_loader, siamese_val_loader, EPOCHS, LEARNING_RATE)
         plot_loss(train_loss, validation_loss, show=False, save=True, fname=os.path.join(plots_dir, f'scrnn_loss_{n_class}.png'))
         test_knn_accuracy = test_knn_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
         test_svm_accuracy = test_svm_siamese_network(net, device, train_loaders_parciales[n_per_class], test_loader)
